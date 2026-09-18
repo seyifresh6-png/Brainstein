@@ -1,92 +1,67 @@
+/* Brainstein Supabase authentication helper.
+ * Use only the anon/publishable key in browser code.
+ * Never expose a Supabase service_role/secret key here.
+ */
 window.supabaseAuth = (() => {
-  const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  const SUPABASE_URL = 'https://vpsehljhihkwruqeanod.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwc2VobGpoaWhrd3J1cWVhbm9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5ODk4MDksImV4cCI6MjEwNDU2NTgwOX0.tqcnLhwjvN8snqHFGsi8rs687_32B0nufU0ReFk-3nw';
 
-  const client = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true
     }
-  }) : null;
-
-  function safeText(value, fallback = 'Guest') {
-    if (!value || !String(value).trim()) return fallback;
-    return String(value).trim();
-  }
+  });
 
   async function signInWithGoogle() {
-    if (!client) {
-      throw new Error('Supabase client is not initialized');
-    }
-
     const { data, error } = await client.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}${window.location.pathname}`
       }
     });
-
     if (error) throw error;
     return data;
   }
 
   async function signOut() {
-    if (!client) return;
     const { error } = await client.auth.signOut();
     if (error) throw error;
   }
 
-  function syncUserFromSession(sessionUser) {
-    if (!sessionUser) {
-      window.state = window.state || {};
-      window.state.user = {
-        name: 'Guest Observer',
-        handle: 'guest-observer',
-        signed: false,
-        avatar: 'G',
-        email: ''
-      };
+  function syncUser(user) {
+    if (!window.state) return;
+    if (!user) {
+      window.state.user = { name: 'Guest Observer', handle: 'guest-observer', signed: false };
       return;
     }
 
-    const fullName = safeText(sessionUser.user_metadata?.full_name, sessionUser.email?.split('@')[0] || 'User');
-    const firstLetter = fullName.charAt(0).toUpperCase();
+    const metadata = user.user_metadata || {};
+    const name = metadata.full_name || metadata.name || user.email?.split('@')[0] || 'Google User';
+    const handle = (metadata.user_name || user.email?.split('@')[0] || 'google-user')
+      .replace(/[^a-z0-9-]/gi, '-').toLowerCase();
 
-    window.state = window.state || {};
     window.state.user = {
-      name: fullName,
-      handle: safeText((sessionUser.user_metadata?.user_name || sessionUser.email || 'user').split('@')[0].replace(/[^a-z0-9-]/gi, '-').toLowerCase(), 'user'),
-      signed: true,
-      avatar: firstLetter,
-      email: sessionUser.email || '',
-      photoURL: sessionUser.user_metadata?.avatar_url || ''
+      name,
+      handle,
+      email: user.email || '',
+      photoURL: metadata.avatar_url || metadata.picture || '',
+      uid: user.id,
+      signed: true
     };
   }
 
   async function hydrate() {
-    if (!client) return;
     const { data: { session }, error } = await client.auth.getSession();
-    if (error) {
-      console.error('Supabase session error:', error);
-      return;
-    }
+    if (error) throw error;
+    syncUser(session?.user || null);
 
-    syncUserFromSession(session?.user || null);
-
-    client.auth.onAuthStateChange((event, session) => {
-      syncUserFromSession(session?.user || null);
-      if (typeof window.updateAuthUI === 'function') {
-        window.updateAuthUI();
-      }
+    client.auth.onAuthStateChange((_event, nextSession) => {
+      syncUser(nextSession?.user || null);
+      if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
     });
   }
 
-  return {
-    client,
-    hydrate,
-    signInWithGoogle,
-    signOut,
-    syncUserFromSession
-  };
+  return { client, hydrate, signInWithGoogle, signOut, syncUser };
 })();
