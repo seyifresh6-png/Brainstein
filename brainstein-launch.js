@@ -25,6 +25,16 @@
     document.body.appendChild(script);
   }
 
+  function removeBlueprint() {
+    // Remove only Blueprint navigation and content; leave the rest of the app untouched.
+    document.querySelectorAll('[data-view="blueprint"], [data-go="blueprint"]').forEach(function (element) {
+      element.remove();
+    });
+
+    var blueprintView = document.getElementById('view-blueprint');
+    if (blueprintView) blueprintView.remove();
+  }
+
   function showError(error) {
     document.body.innerHTML = '';
     var main = document.createElement('main');
@@ -75,7 +85,7 @@
       });
     });
 
-    return chain;
+    return chain.then(removeBlueprint);
   }
 
   fetch(APP_URL, { credentials: 'same-origin' })
