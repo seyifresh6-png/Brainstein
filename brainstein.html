@@ -1,37 +1,678 @@
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-const icons = () => window.lucide && lucide.createIcons();
-const now = () => new Date().toTimeString().slice(0,5);
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brainstein</title>
+    <style>
+      :root {
+        --bg: #08090d;
+        --bg-2: #10131a;
+        --panel: rgba(15, 18, 25, 0.9);
+        --line: rgba(255,255,255,0.08);
+        --text: #eceae4;
+        --muted: #b9bec9;
+        --accent: #f2b441;
+        --accent-2: #5bd6c0;
+        --shadow: rgba(0,0,0,0.35);
+      }
 
-function formatNameFromEmail(email){
-  const local = String(email || '').split('@')[0] || 'user';
-  const cleaned = local.replace(/[._-]+/g, ' ').trim();
-  if (!cleaned) return 'User';
-  return cleaned.split(/\s+/).map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(' ');
-}
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top, rgba(242,180,65,0.15), transparent 28%),
+          linear-gradient(180deg, var(--bg) 0%, #0b0d12 100%);
+        color: var(--text);
+        font-family: Inter, "Segoe UI", sans-serif;
+      }
 
-function saveUserState(user){
-  const value = user && typeof user === 'object' ? user : { name:'Guest Observer', handle:'guest-observer', signed:false };
-  state.user = { ...value, signed: true };
-  try { localStorage.setItem('brainstein_user', JSON.stringify(state.user)); } catch (error) { console.warn('Could not persist user state', error); }
-}
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; }
 
-function restoreUserState(){
-  try {
-    const raw = localStorage.getItem('brainstein_user');
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return null;
-    return { name: parsed.name || 'Guest Observer', handle: parsed.handle || 'guest-observer', signed: !!parsed.signed, avatar: parsed.avatar || (parsed.name || 'G').charAt(0).toUpperCase(), email: parsed.email || '' };
-  } catch (error) {
-    console.warn('Could not read persisted user state', error);
-    return null;
-  }
-}
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        height: 72px;
+        padding: 0 32px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(8,9,13,0.78);
+        backdrop-filter: blur(12px);
+      }
 
-const state = {
-  user: restoreUserState() || { name:'Guest Observer', handle:'guest-observer', signed:false },
-  view: 'home', channel: 'homework', theme: 'dark',
-  lib: { q:'', cat:'All', type:'All' },
-  peerUsed: {}
-};
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        letter-spacing: 0.18em;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text);
+      }
+
+      .brand-mark {
+        width: 26px;
+        height: 26px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow: 0 8px 24px rgba(242,180,65,0.38);
+        color: #111;
+        font-weight: 900;
+      }
+
+      .nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .nav button {
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--muted);
+        padding: 9px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: 0.18s ease;
+      }
+
+      .nav button:hover,
+      .nav button.active {
+        background: rgba(242,180,65,0.08);
+        border-color: rgba(242,180,65,0.28);
+        color: var(--text);
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: transparent;
+        color: var(--text);
+        padding: 10px 16px;
+        cursor: pointer;
+        transition: 0.18s ease;
+      }
+
+      .btn:hover { transform: translateY(-1px); }
+      .btn.primary {
+        background: linear-gradient(135deg, var(--accent), #ffcf6b);
+        border-color: transparent;
+        color: #180d00;
+        font-weight: 700;
+      }
+
+      .shell {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 48px 20px 80px;
+      }
+
+      .view {
+        display: none;
+        animation: fadeIn 0.35s ease;
+      }
+
+      .view.active { display: block; }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 28px;
+        align-items: center;
+        min-height: 68vh;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 26px;
+        height: 1px;
+        background: var(--accent);
+      }
+
+      h1 {
+        margin: 16px 0 18px;
+        font-size: clamp(3rem, 7vw, 6.4rem);
+        line-height: 0.96;
+        letter-spacing: -0.06em;
+      }
+
+      h1 .accent {
+        color: var(--accent);
+      }
+
+      .lead {
+        max-width: 56ch;
+        font-size: 1.15rem;
+        line-height: 1.7;
+        color: var(--muted);
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+      }
+
+      .panel {
+        background: rgba(16, 19, 26, 0.8);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 20px 48px var(--shadow);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 18px;
+      }
+
+      .stat {
+        padding: 18px 16px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255,255,255,0.015);
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 2rem;
+        line-height: 1.1;
+        margin-bottom: 6px;
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+        margin-top: 28px;
+      }
+
+      .card {
+        background: rgba(16, 19, 26, 0.78);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 24px;
+      }
+
+      .kicker {
+        display: inline-block;
+        color: var(--accent);
+        font-size: 11px;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      .card h3 {
+        margin: 0 0 10px;
+        font-size: 1.3rem;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .blueprint {
+        margin-top: 30px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .blueprint-item {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 18px 20px;
+        background: rgba(16, 19, 26, 0.7);
+      }
+
+      .blueprint-item h4 {
+        margin: 0 0 8px;
+        font-size: 1.1rem;
+      }
+
+      .blueprint-item p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .toast {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        background: rgba(9,11,15,0.96);
+        border: 1px solid var(--line);
+        color: var(--text);
+        border-radius: 12px;
+        padding: 12px 16px;
+        box-shadow: 0 18px 32px rgba(0,0,0,0.32);
+        opacity: 0;
+        transform: translateY(8px);
+        transition: 0.2s ease;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 868px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          padding: 0 16px;
+          height: auto;
+          flex-wrap: wrap;
+          padding-top: 10px;
+          padding-bottom: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">B</span> Brainstein</div>
+      <nav class="nav" aria-label="Main navigation">
+        <button type="button" class="active" data-nav="home">Home</button>
+        <button type="button" data-nav="dashboard">Dashboard</button>
+        <button type="button" data-nav="blueprint">Blueprint</button>
+      </nav>
+      <div class="actions">
+        <button class="btn" type="button" id="guestBtn">Guest</button>
+        <button class="btn primary" type="button" id="ctaBtn">Launch demo</button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="view active" id="view-home">
+        <div class="hero">
+          <div>
+            <div class="eyebrow">AI reasoning, without the drift</div>
+            <h1>Build <span class="accent">clearer</span> reasoning.</h1>
+            <p class="lead">
+              Brainstein turns dense technical questions into structured derivations,
+              proof sketches, and checks that keep the math honest.
+            </p>
+            <div class="cta-row">
+              <button type="button" class="btn primary" data-nav="dashboard">Open dashboard</button>
+              <button type="button" class="btn" data-nav="blueprint">See blueprint</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="kicker">Live overview</div>
+            <div class="stats-grid">
+              <div class="stat">
+                <strong>12+</strong>
+                <span>derived topics</span>
+              </div>
+              <div class="stat">
+                <strong>4.9</strong>
+                <span>reasoning quality</span>
+              </div>
+              <div class="stat">
+                <strong>88%</strong>
+                <span>limit checks passed</span>
+              </div>
+              <div class="stat">
+                <strong>24x</strong>
+                <span>faster review loops</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-dashboard">
+        <div class="kicker">Dashboard</div>
+        <h2>Focused outputs for active exploration</h2>
+        <div class="grid">
+          <article class="card">
+            <div class="kicker">Knowledge</div>
+            <h3>Derivations on tap</h3>
+            <p>Fast access to symbolic proofs, worked examples, and checklists for misunderstandings.</p>
+          </article>
+          <article class="card">
+            <div class="kicker">Review</div>
+            <h3>Limit-aware reasoning</h3>
+            <p>Built-in edge checks catch domain, approximation, and sign errors before they spread.</p>
+          </article>
+          <article class="card">
+            <div class="kicker">Collab</div>
+            <h3>Peer verification</h3>
+            <p>Share proofs, ask for review, and compare alternative derivation paths in one place.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" id="view-blueprint">
+        <div class="kicker">Blueprint</div>
+        <h2>System architecture and delivery plan</h2>
+        <div class="blueprint">
+          <div class="blueprint-item">
+            <h4>01 · Landing & onboarding</h4>
+            <p>Introduce the product, set expectations, and give the user a path to the first useful derivation.</p>
+          </div>
+          <div class="blueprint-item">
+            <h4>02 · Reasoning workspace</h4>
+            <p>Provide a clean editor, symbolic trace, and result checks so the user can follow the logic step by step.</p>
+          </div>
+          <div class="blueprint-item">
+            <h4>03 · Verification layer</h4>
+            <p>Surface numeric sanity checks, assumptions, and limit conditions to ensure the output is reliable.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <script>
+      const state = {
+        user: { name: 'Guest Observer', handle: 'guest-observer', signed: false },
+        view: 'home'
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+      const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+      function showToast(message) {
+        const toast = $('#toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2400);
+      }
+
+      function setView(name) {
+        state.view = name;
+        $$('[data-nav]').forEach((button) => {
+          button.classList.toggle('active', button.dataset.nav === name);
+        });
+        $$('.view').forEach((section) => {
+          section.classList.toggle('active', section.id === 'view-' + name);
+        });
+      }
+
+      $$('[data-nav]').forEach((button) => {
+        button.addEventListener('click', () => setView(button.dataset.nav));
+      });
+
+      $('#guestBtn')?.addEventListener('click', () => {
+        state.user.signed = false;
+        showToast('Guest mode active');
+      });
+
+      $('#ctaBtn')?.addEventListener('click', () => {
+        state.user.signed = true;
+        state.user.name = 'Demo Researcher';
+        state.user.handle = 'demo-researcher';
+        showToast('Demo launched');
+      });
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -2,72 +2,128 @@
   'use strict';
 
   var APP_URL = './brainstein.html';
-  var SUPABASE_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-  var AUTH_URL = './supabase-auth.js';
-  var UI_URL = './auth-integration.js';
-
-  function loadExternalScript(src) {
-    return new Promise(function (resolve, reject) {
-      var script = document.createElement('script');
-      script.src = src;
-      script.async = false;
-      script.onload = resolve;
-      script.onerror = function () { reject(new Error('Unable to load ' + src)); };
-      document.body.appendChild(script);
-    });
-  }
-
-  function loadInlineScript(source) {
-    var script = document.createElement('script');
-    script.textContent = source;
-    document.body.appendChild(script);
-  }
-
-  function removeBlueprint() {
-    document.querySelectorAll('[data-view="blueprint"], [data-go="blueprint"]').forEach(function (element) { element.remove(); });
-    document.getElementById('view-blueprint')?.remove();
-  }
 
   function showError(error) {
     document.body.innerHTML = '';
     var main = document.createElement('main');
-    main.style.cssText = 'font:16px system-ui,sans-serif;padding:2rem;max-width:42rem;margin:auto';
-    var heading = document.createElement('h1');
-    heading.textContent = 'Brainstein could not start';
+    main.style.cssText = 'font:16px system-ui,sans-serif;padding:2rem;max-width:42rem;margin:auto;line-height:1.6;';
+
+    var title = document.createElement('h1');
+    title.textContent = 'Brainstein could not start';
+    title.style.marginBottom = '0.75rem';
+
     var paragraph = document.createElement('p');
     paragraph.textContent = error && error.message ? error.message : 'Unknown startup error.';
-    main.appendChild(heading); main.appendChild(paragraph); document.body.appendChild(main);
+    paragraph.style.color = '#b9bec9';
+
+    main.appendChild(title);
+    main.appendChild(paragraph);
+    document.body.appendChild(main);
   }
 
   function boot(source) {
-    var parsed = new DOMParser().parseFromString(source, 'text/html');
-    if (parsed.querySelector('parsererror')) throw new Error('The Brainstein document could not be parsed.');
-    document.title = parsed.title || 'Brainstein';
-    document.head.innerHTML = parsed.head.innerHTML;
-    document.body.innerHTML = parsed.body.innerHTML;
-    var scripts = Array.prototype.slice.call(document.querySelectorAll('script'));
-    document.querySelectorAll('script').forEach(function (script) { script.remove(); });
-    var chain = Promise.resolve();
-    scripts.forEach(function (original) {
-      chain = chain.then(function () {
-        var sourceText = original.textContent || '';
-        var sourceUrl = original.getAttribute('src');
-        if (!sourceUrl && sourceText.indexOf('BRAINSTEIN') !== -1) {
-          return loadExternalScript(SUPABASE_URL).then(function () { return loadExternalScript(AUTH_URL); }).then(function () { return loadExternalScript(UI_URL); }).then(function () {
-            // Prevent the legacy prototype OAuth handler from replacing the real user with Demo Guest.
-            sourceText = sourceText.replace("setUser('Demo Guest', 'demo');", "/* authenticated name comes from Supabase */");
-            loadInlineScript(sourceText);
-          });
-        }
-        if (sourceUrl) return loadExternalScript(sourceUrl);
-        if (sourceText.trim()) loadInlineScript(sourceText);
-      });
-    });
-    return chain.then(removeBlueprint);
+    var cleaned = source.trim();
+    if (!cleaned) {
+      throw new Error('Brainstein HTML is empty.');
+    }
+
+    document.open();
+    document.write(cleaned);
+    document.close();
   }
 
-  fetch(APP_URL, { credentials: 'same-origin' }).then(function (response) {
-    if (!response.ok) throw new Error('Brainstein returned HTTP ' + response.status);
-    return response.text();
-  }).then(boot).catch(showError);
+  fetch(APP_URL, { credentials: 'same-origin' })
+    .then(function (response) {
+      if (!response.ok) {
+        throw new Error('Brainstein returned HTTP ' + response.status);
+      }
+      return response.text();
+    })
+    .then(boot)
+    .catch(showError);
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
