@@ -13,7 +13,7 @@
   }
 
   function ensureBaseState() {
-    const fallbackState = {
+    const defaults = {
       user: {
         name: 'Guest Observer',
         handle: 'guest-observer',
@@ -29,44 +29,30 @@
     };
 
     if (!window.state || typeof window.state !== 'object') {
-      window.state = {
-        ...fallbackState,
-        user: { ...fallbackState.user },
-        lib: { ...fallbackState.lib },
-        peerUsed: { ...fallbackState.peerUsed }
-      };
-    } else {
-      window.state = {
-        ...fallbackState,
-        ...window.state,
-        user: {
-          ...fallbackState.user,
-          ...(window.state.user || {})
-        },
-        lib: {
-          ...fallbackState.lib,
-          ...(window.state.lib || {})
-        },
-        peerUsed: {
-          ...fallbackState.peerUsed,
-          ...(window.state.peerUsed || {})
-        }
-      };
+      window.state = {};
     }
 
-    if (!window.state.user || typeof window.state.user !== 'object') {
-      window.state.user = { ...fallbackState.user };
-    }
+    const state = window.state;
 
-    if (!window.state.lib || typeof window.state.lib !== 'object') {
-      window.state.lib = { ...fallbackState.lib };
-    }
+    state.user = {
+      ...defaults.user,
+      ...(state.user || {})
+    };
 
-    if (!window.state.peerUsed || typeof window.state.peerUsed !== 'object') {
-      window.state.peerUsed = { ...fallbackState.peerUsed };
-    }
+    state.lib = {
+      ...defaults.lib,
+      ...(state.lib || {})
+    };
 
-    return window.state;
+    state.peerUsed = {
+      ...(state.peerUsed || {})
+    };
+
+    if (!state.view) state.view = defaults.view;
+    if (!state.channel) state.channel = defaults.channel;
+    if (!state.theme) state.theme = defaults.theme;
+
+    return state;
   }
 
   window.supabaseAuth = (() => {
@@ -120,9 +106,9 @@
     }
 
     function syncUserFromSession(sessionUser) {
-      const baseState = ensureBaseState();
-      baseState.user = normalizeUser(sessionUser);
-      window.state = baseState;
+      const state = ensureBaseState();
+      state.user = normalizeUser(sessionUser);
+      window.state = state;
       if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
     }
 
@@ -231,9 +217,9 @@
   })();
 
   window.updateAuthUI = function () {
-    const baseState = ensureBaseState();
-    const user = baseState.user && typeof baseState.user === 'object'
-      ? baseState.user
+    const state = ensureBaseState();
+    const user = state.user && typeof state.user === 'object'
+      ? state.user
       : {
           name: 'Guest Observer',
           handle: 'guest-observer',
@@ -398,37 +384,36 @@ const DEFAULT_SHELL_STATE = {
   peerUsed: {}
 };
 
-const baseState = window.state && typeof window.state === 'object'
-  ? {
-      ...DEFAULT_SHELL_STATE,
-      ...window.state,
-      user: {
-        ...DEFAULT_SHELL_STATE.user,
-        ...(window.state.user || {})
-      },
-      lib: {
-        ...DEFAULT_SHELL_STATE.lib,
-        ...(window.state.lib || {})
-      },
-      peerUsed: {
-        ...DEFAULT_SHELL_STATE.peerUsed,
-        ...(window.state.peerUsed || {})
-      }
-    }
-  : { ...DEFAULT_SHELL_STATE };
+function ensureShellState() {
+  if (!window.state || typeof window.state !== 'object') {
+    window.state = {};
+  }
 
-if (!baseState.user || typeof baseState.user !== 'object') {
-  baseState.user = { ...DEFAULT_SHELL_STATE.user };
-}
-if (!baseState.lib || typeof baseState.lib !== 'object') {
-  baseState.lib = { ...DEFAULT_SHELL_STATE.lib };
-}
-if (!baseState.peerUsed || typeof baseState.peerUsed !== 'object') {
-  baseState.peerUsed = { ...DEFAULT_SHELL_STATE.peerUsed };
+  const state = window.state;
+
+  state.user = {
+    ...DEFAULT_SHELL_STATE.user,
+    ...(state.user || {})
+  };
+
+  state.lib = {
+    ...DEFAULT_SHELL_STATE.lib,
+    ...(state.lib || {})
+  };
+
+  state.peerUsed = {
+    ...(state.peerUsed || {})
+  };
+
+  state.view = state.view || DEFAULT_SHELL_STATE.view;
+  state.channel = state.channel || DEFAULT_SHELL_STATE.channel;
+  state.theme = state.theme || DEFAULT_SHELL_STATE.theme;
+
+  return state;
 }
 
-window.state = baseState;
-const state = baseState;
+const state = ensureShellState();
+window.state = state;
 
 function toast(msg, ic='check') {
   const t = document.createElement('div');
