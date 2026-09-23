@@ -9,9 +9,14 @@ window.BRAINSTEIN_CONFIG = window.BRAINSTEIN_CONFIG || {
 
 window.supabaseAuth = (() => {
   const config = window.BRAINSTEIN_CONFIG || {};
+
+  function safeText(value, fallback = 'Guest') {
+    if (value === null || value === undefined || !String(value).trim()) return fallback;
+    return String(value).trim();
+  }
+
   const SUPABASE_URL = safeText(config.supabaseUrl, 'https://YOUR_PROJECT_REF.supabase.co');
   const SUPABASE_ANON_KEY = safeText(config.supabaseAnonKey, 'YOUR_SUPABASE_ANON_KEY');
-
   const client = window.supabase
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: {
@@ -22,9 +27,18 @@ window.supabaseAuth = (() => {
       })
     : null;
 
-  function safeText(value, fallback = 'Guest') {
-    if (value === null || value === undefined || !String(value).trim()) return fallback;
-    return String(value).trim();
+  function ensureState() {
+    if (!window.state || typeof window.state !== 'object') window.state = {};
+    if (!window.state.user || typeof window.state.user !== 'object') {
+      window.state.user = {
+        name: 'Guest Observer',
+        handle: 'guest-observer',
+        signed: false,
+        avatar: 'G',
+        email: ''
+      };
+    }
+    return window.state;
   }
 
   function normalizeUser(sessionUser) {
@@ -63,77 +77,59 @@ window.supabaseAuth = (() => {
   }
 
   function syncUserFromSession(sessionUser) {
-    window.state = window.state || {};
-    window.state.user = normalizeUser(sessionUser);
-    if (typeof window.updateAuthUI === 'function') {
-      window.updateAuthUI();
-    }
+    const state = ensureState();
+    state.user = normalizeUser(sessionUser);
+    if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
   }
 
   function getAuthRedirectUrl() {
     const url = new URL(window.location.href);
+    url.hash = '';
+    url.search = '';
     url.searchParams.set('auth', 'callback');
     return url.toString();
   }
 
-  async function signUp(email, password) {
-    if (!client) throw new Error('Supabase client is not initialized');
-
+  function validateCredentials(email, password) {
     const cleanEmail = safeText(email, '').toLowerCase();
     const cleanPassword = safeText(password, '');
-
-    if (!cleanEmail || !cleanEmail.includes('@')) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
       throw new Error('Please enter a valid email.');
     }
-
     if (cleanPassword.length < 6) {
       throw new Error('Password must be at least 6 characters.');
     }
+    return { cleanEmail, cleanPassword };
+  }
 
+  async function signUp(email, password) {
+    if (!client) throw new Error('Supabase client is not initialized');
+    const credentials = validateCredentials(email, password);
     const { data, error } = await client.auth.signUp({
-      email: cleanEmail,
-      password: cleanPassword
+      email: credentials.cleanEmail,
+      password: credentials.cleanPassword
     });
-
     if (error) throw error;
     return data;
   }
 
   async function signIn(email, password) {
     if (!client) throw new Error('Supabase client is not initialized');
-
-    const cleanEmail = safeText(email, '').toLowerCase();
-    const cleanPassword = safeText(password, '');
-
-    if (!cleanEmail || !cleanEmail.includes('@')) {
-      throw new Error('Please enter a valid email.');
-    }
-
-    if (cleanPassword.length < 6) {
-      throw new Error('Password must be at least 6 characters.');
-    }
-
+    const credentials = validateCredentials(email, password);
     const { data, error } = await client.auth.signInWithPassword({
-      email: cleanEmail,
-      password: cleanPassword
+      email: credentials.cleanEmail,
+      password: credentials.cleanPassword
     });
-
     if (error) throw error;
     return data;
   }
 
   async function signInWithGoogle() {
-    if (!client) {
-      throw new Error('Supabase client is not initialized');
-    }
-
+    if (!client) throw new Error('Supabase client is not initialized');
     const { data, error } = await client.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: getAuthRedirectUrl()
-      }
+      options: { redirectTo: getAuthRedirectUrl() }
     });
-
     if (error) throw error;
     return data;
   }
@@ -143,30 +139,29 @@ window.supabaseAuth = (() => {
       syncUserFromSession(null);
       return;
     }
-
     const { error } = await client.auth.signOut();
     if (error) throw error;
     syncUserFromSession(null);
   }
 
   async function hydrate() {
+    ensureState();
     if (!client) {
       syncUserFromSession(null);
       return;
     }
 
-    const { data: { session }, error } = await client.auth.getSession();
-    if (error) {
-      console.error('Supabase session error:', error);
+    try {
+      const { data, error } = await client.auth.getSession();
+      if (error) throw error;
+      syncUserFromSession(data?.session?.user || null);
+      client.auth.onAuthStateChange((_event, nextSession) => {
+        syncUserFromSession(nextSession?.user || null);
+      });
+    } catch (error) {
+      console.error('Supabase session hydration failed:', error);
       syncUserFromSession(null);
-      return;
     }
-
-    syncUserFromSession(session?.user || null);
-
-    client.auth.onAuthStateChange((_event, nextSession) => {
-      syncUserFromSession(nextSession?.user || null);
-    });
   }
 
   return {
