@@ -12,6 +12,63 @@
     return String(value).trim();
   }
 
+  function ensureBaseState() {
+    const fallbackState = {
+      user: {
+        name: 'Guest Observer',
+        handle: 'guest-observer',
+        signed: false,
+        avatar: 'G',
+        email: ''
+      },
+      view: 'home',
+      channel: 'homework',
+      theme: 'dark',
+      lib: { q: '', cat: 'All', type: 'All' },
+      peerUsed: {}
+    };
+
+    if (!window.state || typeof window.state !== 'object') {
+      window.state = {
+        ...fallbackState,
+        user: { ...fallbackState.user },
+        lib: { ...fallbackState.lib },
+        peerUsed: { ...fallbackState.peerUsed }
+      };
+    } else {
+      window.state = {
+        ...fallbackState,
+        ...window.state,
+        user: {
+          ...fallbackState.user,
+          ...(window.state.user || {})
+        },
+        lib: {
+          ...fallbackState.lib,
+          ...(window.state.lib || {})
+        },
+        peerUsed: {
+          ...fallbackState.peerUsed,
+          ...(window.state.peerUsed || {})
+        }
+      };
+    }
+
+    if (!window.state.user || typeof window.state.user !== 'object') {
+      window.state.user = { ...fallbackState.user };
+    }
+
+    if (!window.state.lib || typeof window.state.lib !== 'object') {
+      window.state.lib = { ...fallbackState.lib };
+    }
+
+    if (!window.state.peerUsed || typeof window.state.peerUsed !== 'object') {
+      window.state.peerUsed = {};
+    }
+
+    return window.state;
+  }
+
   window.supabaseAuth = (() => {
     const config = window.BRAINSTEIN_CONFIG || {};
     const SUPABASE_URL = safeText(config.supabaseUrl, 'https://YOUR_PROJECT_REF.supabase.co');
@@ -63,13 +120,16 @@
     }
 
     function syncUserFromSession(sessionUser) {
-      window.state = window.state || {};
-      window.state.user = normalizeUser(sessionUser);
+      const baseState = ensureBaseState();
+      baseState.user = normalizeUser(sessionUser);
+      window.state = baseState;
       if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
     }
 
     function getAuthRedirectUrl() {
       const url = new URL(window.location.href);
+      url.hash = '';
+      url.search = '';
       url.searchParams.set('auth', 'callback');
       return url.toString();
     }
@@ -132,23 +192,30 @@
     }
 
     async function hydrate() {
+      ensureBaseState();
+
       if (!client) {
         syncUserFromSession(null);
         return;
       }
 
-      const { data: { session }, error } = await client.auth.getSession();
-      if (error) {
-        console.error('Supabase session error:', error);
+      try {
+        const { data: { session }, error } = await client.auth.getSession();
+        if (error) {
+          console.error('Supabase session error:', error);
+          syncUserFromSession(null);
+          return;
+        }
+
+        syncUserFromSession(session?.user || null);
+
+        client.auth.onAuthStateChange((_event, nextSession) => {
+          syncUserFromSession(nextSession?.user || null);
+        });
+      } catch (error) {
+        console.error('Supabase session hydration failed:', error);
         syncUserFromSession(null);
-        return;
       }
-
-      syncUserFromSession(session?.user || null);
-
-      client.auth.onAuthStateChange((_event, nextSession) => {
-        syncUserFromSession(nextSession?.user || null);
-      });
     }
 
     return {
@@ -164,6 +231,17 @@
   })();
 
   window.updateAuthUI = function () {
+    const baseState = ensureBaseState();
+    const user = baseState.user && typeof baseState.user === 'object'
+      ? baseState.user
+      : {
+          name: 'Guest Observer',
+          handle: 'guest-observer',
+          signed: false,
+          avatar: 'G',
+          email: ''
+        };
+
     const loginButton = document.querySelector('[data-auth="login"]');
     const signupButton = document.querySelector('[data-auth="signup"]');
     const userChip = document.getElementById('userChip');
@@ -173,17 +251,15 @@
     const popHdl = document.getElementById('popHdl');
     const popAv = document.getElementById('popAv');
 
-    if (!window.state) return;
-
-    if (window.state.user && window.state.user.signed) {
+    if (user.signed) {
       if (loginButton) loginButton.style.display = 'none';
       if (signupButton) signupButton.style.display = 'none';
       if (userChip) userChip.classList.add('on');
-      if (chipName) chipName.textContent = window.state.user.name;
-      if (chipAv) chipAv.textContent = (window.state.user.name || 'G').charAt(0).toUpperCase();
-      if (popName) popName.textContent = window.state.user.name;
-      if (popHdl) popHdl.textContent = '@' + (window.state.user.handle || 'user');
-      if (popAv) popAv.textContent = (window.state.user.name || 'G').charAt(0).toUpperCase();
+      if (chipName) chipName.textContent = user.name;
+      if (chipAv) chipAv.textContent = (user.name || 'G').charAt(0).toUpperCase();
+      if (popName) popName.textContent = user.name;
+      if (popHdl) popHdl.textContent = '@' + (user.handle || 'user');
+      if (popAv) popAv.textContent = (user.name || 'G').charAt(0).toUpperCase();
     } else {
       if (loginButton) loginButton.style.display = '';
       if (signupButton) signupButton.style.display = '';
@@ -197,6 +273,8 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    ensureBaseState();
+
     const googleBtn = document.querySelector('[data-oauth="Google"]');
     if (googleBtn) {
       googleBtn.dataset.originalText = googleBtn.dataset.originalText || googleBtn.textContent;
@@ -272,8 +350,9 @@
     const userChip = document.getElementById('userChip');
     if (userChip) {
       userChip.addEventListener('click', async () => {
-        if (!window.state || !window.state.user || !window.state.user.signed) return;
-        const shouldLogout = confirm(`Sign out ${window.state.user.name}?`);
+        const currentUser = ensureBaseState().user;
+        if (!currentUser || !currentUser.signed) return;
+        const shouldLogout = confirm(`Sign out ${currentUser.name}?`);
         if (!shouldLogout) return;
 
         try {
@@ -289,8 +368,13 @@
     }
 
     if (window.supabaseAuth && typeof window.supabaseAuth.hydrate === 'function') {
-      window.supabaseAuth.hydrate();
+      window.supabaseAuth.hydrate().catch((error) => {
+        console.error('Supabase auth hydration failed:', error);
+        window.supabaseAuth.syncUserFromSession(null);
+      });
     }
+
+    if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
   });
 </script>
 <script>
@@ -304,8 +388,47 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const icons = () => window.lucide && lucide.createIcons();
 const now = () => new Date().toTimeString().slice(0,5);
-const state = { user:{name:'Guest Observer',handle:'guest-observer',signed:false}, view:'home', channel:'homework', theme:'dark', lib:{q:'',cat:'All',type:'All'}, peerUsed:{} };
-window.state = state;
+const DEFAULT_SHELL_STATE = {
+  user: { name: 'Guest Observer', handle: 'guest-observer', signed: false },
+  view: 'home',
+  channel: 'homework',
+  theme: 'dark',
+  lib: { q: '', cat: 'All', type: 'All' },
+  peerUsed: {}
+};
+
+const baseState = window.state && typeof window.state === 'object'
+  ? {
+      ...DEFAULT_SHELL_STATE,
+      ...window.state,
+      user: {
+        ...DEFAULT_SHELL_STATE.user,
+        ...(window.state.user || {})
+      },
+      lib: {
+        ...DEFAULT_SHELL_STATE.lib,
+        ...(window.state.lib || {})
+      },
+      peerUsed: {
+        ...DEFAULT_SHELL_STATE.peerUsed,
+        ...(window.state.peerUsed || {})
+      }
+    }
+  : { ...DEFAULT_SHELL_STATE };
+
+if (!baseState.user || typeof baseState.user !== 'object') {
+  baseState.user = { ...DEFAULT_SHELL_STATE.user };
+}
+if (!baseState.lib || typeof baseState.lib !== 'object') {
+  baseState.lib = { ...DEFAULT_SHELL_STATE.lib };
+}
+if (!baseState.peerUsed || typeof baseState.peerUsed !== 'object') {
+  baseState.peerUsed = {};
+}
+
+window.state = baseState;
+const state = baseState;
+
 function toast(msg, ic='check'){
   const t=document.createElement('div'); t.className='toast';
   t.innerHTML=`<i data-lucide="${ic}" class="ic"></i><span>${msg}</span>`;
