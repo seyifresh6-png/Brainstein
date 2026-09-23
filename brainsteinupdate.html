@@ -4,12 +4,37 @@
 <script>
   window.BRAINSTEIN_CONFIG = window.BRAINSTEIN_CONFIG || {
     supabaseUrl: 'https://vpsehljhihkwruqeanod.supabase.co',
-    supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwc2VobGpoaWhrd3J1cWVhbm9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5ODk4MDksImV4cCI6MjEwNDU2NTgwOX0.tqc8vTgAfuY2x0VvM63n58s1wD7f9sh7slTQ0H4w4-Q'
+    supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwc2VobGpoaWhrd3J1cWVhbm9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5ODk4MDksImV4cCI6MjEwNDU2NTgwOX0.tqc8vTgAfuY2x[...]
   };
 
   function safeText(value, fallback = 'Guest') {
     if (value === null || value === undefined || !String(value).trim()) return fallback;
     return String(value).trim();
+  }
+
+  function ensureBaseState() {
+    if (!window.state || typeof window.state !== 'object') {
+      window.state = {
+        user: { name: 'Guest Observer', handle: 'guest-observer', signed: false, avatar: 'G', email: '' },
+        view: 'home',
+        channel: 'homework',
+        theme: 'dark',
+        lib: { q: '', cat: 'All', type: 'All' },
+        peerUsed: {}
+      };
+    }
+
+    if (!window.state.user) {
+      window.state.user = {
+        name: 'Guest Observer',
+        handle: 'guest-observer',
+        signed: false,
+        avatar: 'G',
+        email: ''
+      };
+    }
+
+    return window.state;
   }
 
   window.supabaseAuth = (() => {
@@ -63,13 +88,15 @@
     }
 
     function syncUserFromSession(sessionUser) {
-      window.state = window.state || {};
+      ensureBaseState();
       window.state.user = normalizeUser(sessionUser);
       if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
     }
 
     function getAuthRedirectUrl() {
       const url = new URL(window.location.href);
+      url.hash = '';
+      url.search = '';
       url.searchParams.set('auth', 'callback');
       return url.toString();
     }
@@ -132,6 +159,8 @@
     }
 
     async function hydrate() {
+      ensureBaseState();
+
       if (!client) {
         syncUserFromSession(null);
         return;
@@ -164,6 +193,7 @@
   })();
 
   window.updateAuthUI = function () {
+    const baseState = ensureBaseState();
     const loginButton = document.querySelector('[data-auth="login"]');
     const signupButton = document.querySelector('[data-auth="signup"]');
     const userChip = document.getElementById('userChip');
@@ -172,18 +202,23 @@
     const popName = document.getElementById('popName');
     const popHdl = document.getElementById('popHdl');
     const popAv = document.getElementById('popAv');
+    const user = baseState.user || {
+      name: 'Guest Observer',
+      handle: 'guest-observer',
+      signed: false,
+      avatar: 'G',
+      email: ''
+    };
 
-    if (!window.state) return;
-
-    if (window.state.user && window.state.user.signed) {
+    if (user.signed) {
       if (loginButton) loginButton.style.display = 'none';
       if (signupButton) signupButton.style.display = 'none';
       if (userChip) userChip.classList.add('on');
-      if (chipName) chipName.textContent = window.state.user.name;
-      if (chipAv) chipAv.textContent = (window.state.user.name || 'G').charAt(0).toUpperCase();
-      if (popName) popName.textContent = window.state.user.name;
-      if (popHdl) popHdl.textContent = '@' + (window.state.user.handle || 'user');
-      if (popAv) popAv.textContent = (window.state.user.name || 'G').charAt(0).toUpperCase();
+      if (chipName) chipName.textContent = user.name;
+      if (chipAv) chipAv.textContent = (user.name || 'G').charAt(0).toUpperCase();
+      if (popName) popName.textContent = user.name;
+      if (popHdl) popHdl.textContent = '@' + (user.handle || 'user');
+      if (popAv) popAv.textContent = (user.name || 'G').charAt(0).toUpperCase();
     } else {
       if (loginButton) loginButton.style.display = '';
       if (signupButton) signupButton.style.display = '';
@@ -197,6 +232,8 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    ensureBaseState();
+
     const googleBtn = document.querySelector('[data-oauth="Google"]');
     if (googleBtn) {
       googleBtn.dataset.originalText = googleBtn.dataset.originalText || googleBtn.textContent;
@@ -289,8 +326,13 @@
     }
 
     if (window.supabaseAuth && typeof window.supabaseAuth.hydrate === 'function') {
-      window.supabaseAuth.hydrate();
+      window.supabaseAuth.hydrate().catch((error) => {
+        console.error('Supabase auth hydration failed:', error);
+        window.supabaseAuth.syncUserFromSession(null);
+      });
     }
+
+    if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
   });
 </script>
 <script>
@@ -304,11 +346,27 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const icons = () => window.lucide && lucide.createIcons();
 const now = () => new Date().toTimeString().slice(0,5);
-const state = { user:{name:'Guest Observer',handle:'guest-observer',signed:false}, view:'home', channel:'homework', theme:'dark', lib:{q:'',cat:'All',type:'All'}, peerUsed:{} };
-window.state = state;
+const baseState = window.state && typeof window.state === 'object'
+  ? window.state
+  : {
+      user:{name:'Guest Observer',handle:'guest-observer',signed:false},
+      view:'home',
+      channel:'homework',
+      theme:'dark',
+      lib:{q:'',cat:'All',type:'All'},
+      peerUsed:{}
+    };
+
+if (!baseState.user) {
+  baseState.user = { name:'Guest Observer', handle:'guest-observer', signed:false };
+}
+
+window.state = baseState;
+const state = baseState;
 function toast(msg, ic='check'){
   const t=document.createElement('div'); t.className='toast';
   t.innerHTML=`<i data-lucide="${ic}" class="ic"></i><span>${msg}</span>`;
   $('#toasts').appendChild(t); icons();
   setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},3400);
 }
+
