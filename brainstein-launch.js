@@ -12,9 +12,7 @@
       script.src = src;
       script.async = false;
       script.onload = resolve;
-      script.onerror = function () {
-        reject(new Error('Unable to load ' + src));
-      };
+      script.onerror = function () { reject(new Error('Unable to load ' + src)); };
       document.body.appendChild(script);
     });
   }
@@ -26,13 +24,8 @@
   }
 
   function removeBlueprint() {
-    // Remove only Blueprint navigation and content; leave the rest of the app untouched.
-    document.querySelectorAll('[data-view="blueprint"], [data-go="blueprint"]').forEach(function (element) {
-      element.remove();
-    });
-
-    var blueprintView = document.getElementById('view-blueprint');
-    if (blueprintView) blueprintView.remove();
+    document.querySelectorAll('[data-view="blueprint"], [data-go="blueprint"]').forEach(function (element) { element.remove(); });
+    document.getElementById('view-blueprint')?.remove();
   }
 
   function showError(error) {
@@ -43,56 +36,38 @@
     heading.textContent = 'Brainstein could not start';
     var paragraph = document.createElement('p');
     paragraph.textContent = error && error.message ? error.message : 'Unknown startup error.';
-    main.appendChild(heading);
-    main.appendChild(paragraph);
-    document.body.appendChild(main);
+    main.appendChild(heading); main.appendChild(paragraph); document.body.appendChild(main);
   }
 
   function boot(source) {
     var parsed = new DOMParser().parseFromString(source, 'text/html');
-    if (parsed.querySelector('parsererror')) {
-      throw new Error('The Brainstein document could not be parsed.');
-    }
-
+    if (parsed.querySelector('parsererror')) throw new Error('The Brainstein document could not be parsed.');
     document.title = parsed.title || 'Brainstein';
     document.head.innerHTML = parsed.head.innerHTML;
     document.body.innerHTML = parsed.body.innerHTML;
-
     var scripts = Array.prototype.slice.call(document.querySelectorAll('script'));
-    var firstApplicationScript = false;
-
-    document.querySelectorAll('script').forEach(function (script) {
-      script.remove();
-    });
-
+    document.querySelectorAll('script').forEach(function (script) { script.remove(); });
     var chain = Promise.resolve();
     scripts.forEach(function (original) {
       chain = chain.then(function () {
         var sourceText = original.textContent || '';
         var sourceUrl = original.getAttribute('src');
-
-        if (!firstApplicationScript && !sourceUrl && sourceText.indexOf('BRAINSTEIN') !== -1) {
-          firstApplicationScript = true;
-          return loadExternalScript(SUPABASE_URL)
-            .then(function () { return loadExternalScript(AUTH_URL); })
-            .then(function () { return loadExternalScript(UI_URL); })
-            .then(function () { loadInlineScript(sourceText); });
+        if (!sourceUrl && sourceText.indexOf('BRAINSTEIN') !== -1) {
+          return loadExternalScript(SUPABASE_URL).then(function () { return loadExternalScript(AUTH_URL); }).then(function () { return loadExternalScript(UI_URL); }).then(function () {
+            // Prevent the legacy prototype OAuth handler from replacing the real user with Demo Guest.
+            sourceText = sourceText.replace("setUser('Demo Guest', 'demo');", "/* authenticated name comes from Supabase */");
+            loadInlineScript(sourceText);
+          });
         }
-
         if (sourceUrl) return loadExternalScript(sourceUrl);
         if (sourceText.trim()) loadInlineScript(sourceText);
-        return undefined;
       });
     });
-
     return chain.then(removeBlueprint);
   }
 
-  fetch(APP_URL, { credentials: 'same-origin' })
-    .then(function (response) {
-      if (!response.ok) throw new Error('Brainstein returned HTTP ' + response.status);
-      return response.text();
-    })
-    .then(boot)
-    .catch(showError);
+  fetch(APP_URL, { credentials: 'same-origin' }).then(function (response) {
+    if (!response.ok) throw new Error('Brainstein returned HTTP ' + response.status);
+    return response.text();
+  }).then(boot).catch(showError);
 })();
