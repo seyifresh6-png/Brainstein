@@ -63,7 +63,7 @@
     }
 
     if (!window.state.peerUsed || typeof window.state.peerUsed !== 'object') {
-      window.state.peerUsed = {};
+      window.state.peerUsed = { ...fallbackState.peerUsed };
     }
 
     return window.state;
@@ -388,6 +388,7 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const icons = () => window.lucide && lucide.createIcons();
 const now = () => new Date().toTimeString().slice(0,5);
+
 const DEFAULT_SHELL_STATE = {
   user: { name: 'Guest Observer', handle: 'guest-observer', signed: false },
   view: 'home',
@@ -423,15 +424,20 @@ if (!baseState.lib || typeof baseState.lib !== 'object') {
   baseState.lib = { ...DEFAULT_SHELL_STATE.lib };
 }
 if (!baseState.peerUsed || typeof baseState.peerUsed !== 'object') {
-  baseState.peerUsed = {};
+  baseState.peerUsed = { ...DEFAULT_SHELL_STATE.peerUsed };
 }
 
 window.state = baseState;
 const state = baseState;
 
-function toast(msg, ic='check'){
-  const t=document.createElement('div'); t.className='toast';
-  t.innerHTML=`<i data-lucide="${ic}" class="ic"></i><span>${msg}</span>`;
-  $('#toasts').appendChild(t); icons();
-  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},3400);
+function toast(msg, ic='check') {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<i data-lucide="${ic}" class="ic"></i><span>${msg}</span>`;
+  $('#toasts').appendChild(t);
+  icons();
+  setTimeout(() => {
+    t.classList.add('out');
+    setTimeout(() => t.remove(), 350);
+  }, 3400);
 }
