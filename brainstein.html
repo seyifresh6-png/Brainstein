@@ -2,12 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#08090D">
-<title>Brainstein — Physics Platform</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brainstein — Interactive Blueprint & Working Wireframe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <style>
 /* ---------- Tokens (edit colors here) ---------- */
 :root{
@@ -27,21 +25,23 @@ html.light{
   --amber:#E8A81C; --amber2:#D79A0E; --amber-txt:#8F6106; --amber-soft:rgba(196,138,18,.12);
   --teal:#1D9E88; --teal-soft:rgba(29,158,136,.10);
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;touch-action:manipulation}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
 ::selection{background:var(--amber);color:#14151a}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:6px}::-webkit-scrollbar-track{background:transparent}
 button{font-family:var(--sans)}
 svg.lucide{width:16px;height:16px;stroke-width:1.75;flex:none}
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+/* ---------- Shared ---------- */
 .btn{display:inline-flex;align-items:center;gap:8px;font:600 13.5px/1 var(--sans);padding:13px 22px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:.18s}
 .btn-solid{background:var(--amber);color:#171408}
 .btn-solid:hover{background:var(--amber2);transform:translateY(-1px)}
 .btn-ghost{border-color:var(--line2);color:var(--tx);background:transparent}
 .btn-ghost:hover{border-color:var(--amber-txt);color:var(--amber-txt)}
-.btn-mini{display:inline-flex;align-items:center;gap:6px;font:500 11.5px var(--mono);color:var(--tx3);background:none;border:1px solid var(--line2);border-radius:6px;padding:5px 9px;cursor:pointer;transition:.15s;margin-top:8px}
+.btn-mini{display:inline-flex;align-items:center;gap:6px;font:500 11.5px var(--mono);color:var(--tx3);background:none;border:1px solid var(--line2);border-radius:6px;padding:5px 9px;cursor:pointer}
 .btn-mini:hover{color:var(--amber-txt);border-color:var(--amber-txt)}
 .iconbtn{width:38px;height:38px;border-radius:8px;border:1px solid var(--line2);background:none;color:var(--tx2);display:grid;place-items:center;cursor:pointer;transition:.15s}
 .iconbtn:hover{color:var(--amber-txt);border-color:var(--amber-txt)}
@@ -49,7 +49,9 @@ a{color:inherit;text-decoration:none}
 .kicker::before{content:'';width:22px;height:1px;background:var(--amber-txt)}
 .ic{width:15px;height:15px}
 .mono{font-family:var(--mono)}
-.topbar{position:fixed;inset:0 0 auto;height:62px;display:flex;align-items:center;gap:26px;padding:0 26px;border-bottom:1px solid var(--line);background:var(--bg-trans);backdrop-filter:blur(12px);z-index:60}
+
+/* ---------- Topbar ---------- */
+.topbar{position:fixed;inset:0 0 auto;height:62px;display:flex;align-items:center;gap:26px;padding:0 26px;border-bottom:1px solid var(--line);background:var(--bg-trans);backdrop-filter:blur(12px);z-index:100}
 .brand{display:flex;align-items:center;gap:10px;font:500 13px var(--mono);letter-spacing:.22em;color:var(--tx)}
 .tnav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
 .tnav::-webkit-scrollbar{display:none}
@@ -62,6 +64,8 @@ a{color:inherit;text-decoration:none}
 .userchip{display:none;align-items:center;gap:9px;background:none;border:1px solid var(--line2);border-radius:999px;padding:5px 13px 5px 6px;cursor:pointer;color:var(--tx);font:500 12.5px var(--sans)}
 .userchip.on{display:flex}
 .userchip:hover{border-color:var(--amber-txt)}
+
+/* ---------- Views ---------- */
 main{padding-top:62px}
 .view{display:none}
 .view.active{display:block;animation:fadeUp .4s ease}
@@ -69,7 +73,9 @@ main{padding-top:62px}
 @keyframes fade{from{opacity:0}}
 @keyframes pop{from{opacity:0;transform:scale(.97) translateY(8px)}}
 .shell{max-width:1240px;margin:0 auto;padding:52px 32px 110px}
-#view-home{position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ---------- Hero ---------- */
+#view-home{position:relative;min-height:100vh;display:flex;flex-direction:column;overflow:hidden}
 #cosmos{position:absolute;inset:0;pointer-events:none}
 .hero-inner{position:relative;z-index:2;max-width:1240px;width:100%;margin:0 auto;padding:0 32px;display:flex;flex-direction:column;flex:1}
 .hero-eyebrow{display:flex;align-items:center;gap:12px;font:500 11px var(--mono);letter-spacing:.16em;color:var(--tx2);margin-top:118px}
@@ -89,162 +95,189 @@ h1.display em{font-style:italic;color:var(--amber-txt);display:inline-block;anim
 #tickBody{font-size:14.5px;color:var(--tx2);transition:opacity .45s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 #tickBody .tick-who{color:var(--tx);font-weight:600}
 #tickBody .tick-ch{font:400 11.5px var(--mono);color:var(--amber-txt);margin:0 8px}
-.overlay{position:fixed;inset:0;background:rgba(3,4,7,.68);backdrop-filter:blur(6px);z-index:80;display:none;align-items:center;justify-content:center;padding:22px}
-.overlay.open{display:flex}
-.pop{background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:20px;min-width:280px;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-.pop .pav{width:48px;height:48px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font:600 18px var(--serif);color:var(--amber-txt);margin-bottom:12px}
-.pop h4{font:600 15px var(--serif);margin-bottom:6px}
-.pop .hdl{font:500 12px var(--mono);color:var(--tx3);margin-bottom:14px}
-.pop .lvl{font:400 12px var(--sans);color:var(--tx3);margin-bottom:12px}
-.pop .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.pop .chip{font:500 10px var(--mono);background:var(--amber-soft);color:var(--amber-txt);padding:4px 10px;border-radius:999px}
-.pop .badgerow{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
-.pop .badgerow > div{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--tx3)}
-.pop .badgerow .ic{color:var(--amber-txt)}
-.pop .stat{font:400 11px var(--mono);color:var(--tx3);margin-top:12px}
-.toasts{position:fixed;bottom:26px;right:26px;display:flex;flex-direction:column;gap:10px;z-index:90;pointer-events:none}
-.toast{background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:12px 16px;font-size:13px;display:flex;align-items:center;gap:10px;animation:slideIn .3s ease;pointer-events:auto}
-@keyframes slideIn{from{opacity:0;transform:translateX(100px)}}
+
+.toasts{position:fixed;right:22px;bottom:22px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;gap:11px;align-items:center;background:var(--bg3);border:1px solid var(--line2);border-left:2px solid var(--amber);padding:13px 17px;border-radius:10px;font-size:13.5px;color:var(--tx);animation:fadeUp .3s ease}
+.toast.out{opacity:0;transform:translateY(8px);transition:.3s}
+
+footer{border-top:1px solid var(--line)}
+footer .fin{max-width:1240px;margin:0 auto;padding:22px 32px;font:400 11px var(--mono);letter-spacing:.1em;color:var(--tx3);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <div class="brand">⚛️ Brainstein</div>
-  <nav class="tnav">
-    <button class="on" data-view="home">Home</button>
-    <button data-view="tutor">Tutor</button>
-    <button data-view="library">Library</button>
+
+<!-- ============ TOPBAR ============ -->
+<header class="topbar">
+  <a class="brand" href="#" data-go="home">
+    <svg width="24" height="24" viewBox="0 0 26 26" aria-hidden="true">
+      <circle cx="6" cy="19" r="2.3" fill="var(--amber)"/>
+      <circle cx="13" cy="6" r="1.8" fill="var(--tx)"/>
+      <circle cx="21" cy="14" r="1.5" fill="var(--tx3)"/>
+      <path d="M7.5 17.5 12.3 8M14.3 7.6 19.6 12.9M8.3 18.6 19 14.6" stroke="var(--tx3)" stroke-width="1"/>
+    </svg>
+    BRAINSTEIN
+  </a>
+  <nav class="tnav" id="tnav">
+    <button data-view="home" class="on">HOME</button>
+    <button data-view="dashboard">DASHBOARD</button>
+    <button data-view="library">LIBRARY</button>
+    <button data-view="chat">COMMONS</button>
+    <button data-view="tutor">AI TUTOR</button>
   </nav>
   <div class="tb-right">
     <button class="linkbtn" data-auth="login">Log in</button>
-    <button class="linkbtn" data-auth="signup">Sign up</button>
-    <button class="userchip" id="userChip">
-      <div style="width:24px;height:24px;border-radius:6px;background:var(--amber-soft);display:flex;align-items:center;justify-content:center;font:600 11px var(--serif);color:var(--amber-txt)" id="chipAv">G</div>
-      <span id="chipName">Guest</span>
-    </button>
+    <button class="btn btn-solid" data-auth="signup" style="padding:10px 16px">Sign up</button>
+    <button class="userchip" id="userChip"><span style="width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--amber-soft);font-size:11px;font-weight:600;color:var(--amber-txt)" id="chipAv">G</span><span id="chipName">Guest</span></button>
   </div>
-</div>
+</header>
 
 <main>
-  <section class="view active" id="view-home">
-    <svg id="cosmos" width="100%" height="100%" viewBox="0 0 1440 900" style="min-height:100vh" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="glow" cx="30%" cy="30%">
-          <stop offset="0%" style="stop-color:#5BD6C0;stop-opacity:.15"/>
-          <stop offset="100%" style="stop-color:#08090D;stop-opacity:0"/>
-        </radialGradient>
-      </defs>
-      <circle cx="720" cy="450" r="600" fill="url(#glow)"/>
-      <circle cx="150" cy="100" r="3" fill="#5BD6C0" opacity=".6"/>
-      <circle cx="1280" cy="150" r="2" fill="#F2B441" opacity=".4"/>
-      <circle cx="200" cy="800" r="2.5" fill="#5BD6C0" opacity=".5"/>
-    </svg>
-    <div class="hero-inner">
-      <div class="hero-eyebrow">
-        <span class="pulse"></span>
-        <span>Symbolic Physics Engine</span>
-      </div>
-      <h1 class="display">Derive anything. <em>Instantly verified.</em></h1>
-      <p class="hero-sub">Step-by-step symbolic derivations with automatic peer review. Built for students who want to understand, not just memorize.</p>
-      <div class="cta-row">
-        <button class="btn btn-solid">Start learning</button>
-        <button class="quiet-link">Watch demo <svg class="ic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
-      </div>
+<!-- ============ HERO ============ -->
+<section class="view active" id="view-home">
+  <canvas id="cosmos"></canvas>
+  <div class="hero-inner">
+    <div class="hero-eyebrow"><span class="pulse"></span>AI TUTOR ONLINE · 38 STUDY ROOMS ACTIVE · 12,408 RESOURCES INDEXED</div>
+    <h1 class="display">Where curiosity <em>collapses</em> into understanding.</h1>
+    <p class="hero-sub">Brainstein is the interactive commons for physics students — a curated library, live study rooms with native LaTeX, and an AI tutor that answers with full derivations, faster than you can think.</p>
+    <div class="cta-row">
+      <button class="btn btn-solid" data-go="library"><i data-lucide="book-open" class="ic"></i>Explore the library</button>
+      <button class="btn btn-ghost" data-go="chat"><i data-lucide="messages-square" class="ic"></i>Join the commons</button>
     </div>
-    <div class="ticker">
-      <div class="tick-in">
-        <div class="tick-label"><span class="pulse"></span> Live</div>
-        <div id="tickBody"><span class="tick-who">Alex</span> <span class="tick-ch">#homework</span> derived Euler–Lagrange equation</div>
-      </div>
+  </div>
+  <div class="ticker">
+    <div class="tick-in">
+      <span class="tick-label"><span class="pulse"></span>LIVE FROM THE COMMONS</span>
+      <div id="tickBody">Loading activity…</div>
     </div>
-  </section>
-</main>
+  </div>
+</section>
 
+<!-- ============ DASHBOARD ============ -->
+<section class="view" id="view-dashboard">
+  <div class="shell">
+    <h2>Dashboard</h2>
+    <p>Your personalized workspace.</p>
+  </div>
+</section>
+
+<!-- ============ LIBRARY ============ -->
+<section class="view" id="view-library">
+  <div class="shell">
+    <h2>Library</h2>
+    <p>Explore resources and derivations.</p>
+  </div>
+</section>
+
+<!-- ============ CHAT ============ -->
+<section class="view" id="view-chat">
+  <div class="shell">
+    <h2>Commons</h2>
+    <p>Connect with other students in real time.</p>
+  </div>
+</section>
+
+<!-- ============ AI TUTOR ============ -->
+<section class="view" id="view-tutor">
+  <div class="shell">
+    <h2>AI Tutor</h2>
+    <p>Ask anything and get full derivations.</p>
+  </div>
+</section>
+
+<!-- ============ AUTH OVERLAY ============ -->
 <div class="overlay" id="ovAuth">
-  <div class="pop" style="width:320px;padding:24px">
-    <h3 style="font:600 16px var(--serif);margin-bottom:20px">Sign in</h3>
-    <div style="display:flex;gap:8px;margin-bottom:16px" class="au-tabs">
-      <button data-tab="login" style="flex:1;padding:8px;font:500 12px var(--sans);background:var(--amber-soft);color:var(--amber-txt);border:1px solid var(--amber-txt);border-radius:6px;cursor:pointer;transition:.15s" class="on">Log in</button>
-      <button data-tab="signup" style="flex:1;padding:8px;font:500 12px var(--sans);background:none;color:var(--tx3);border:1px solid var(--line2);border-radius:6px;cursor:pointer;transition:.15s">Sign up</button>
-    </div>
-    <input id="auEmail" type="email" placeholder="Email" style="width:100%;padding:10px;font:400 14px var(--sans);background:var(--bg3);border:1px solid var(--line2);border-radius:6px;color:var(--tx);margin-bottom:10px" />
-    <input id="auPass" type="password" placeholder="Password" style="width:100%;padding:10px;font:400 14px var(--sans);background:var(--bg3);border:1px solid var(--line2);border-radius:6px;color:var(--tx);margin-bottom:16px" />
-    <div id="auErr" style="display:none;color:var(--amber-txt);font:500 12px var(--sans);margin-bottom:12px"></div>
-    <button id="auSubmit" class="btn btn-solid" style="width:100%;justify-content:center">Log in</button>
-    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px">
-      <button class="btn btn-ghost" data-oauth="Google" style="width:100%;justify-content:center;font-size:13px">Continue with Google</button>
+  <div class="panel small" style="width:min(430px,96vw)">
+    <div style="padding:26px 28px 30px;overflow-y:auto">
+      <div class="au-tabs">
+        <button data-tab="login" style="flex:1;background:none;border:0;padding:9px;border-radius:6px;font:600 12.5px var(--sans);color:var(--tx3);cursor:pointer">Log in</button>
+        <button data-tab="signup" class="on" style="flex:1;background:var(--bg3);border:0;padding:9px;border-radius:6px;font:600 12.5px var(--sans);color:var(--tx);cursor:pointer">Sign up</button>
+      </div>
+      <div class="field">
+        <label style="font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:7px">Email</label>
+        <input id="auEmail" type="email" style="width:100%;height:44px;border:1px solid var(--line2);border-radius:8px;background:var(--bg);color:var(--tx);padding:0 12px;font:400 14px var(--sans);outline:0" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label style="font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:7px">Password</label>
+        <input id="auPass" type="password" style="width:100%;height:44px;border:1px solid var(--line2);border-radius:8px;background:var(--bg);color:var(--tx);padding:0 12px;font:400 14px var(--sans);outline:0" placeholder="••••••••">
+      </div>
+      <div id="auErr" style="color:#E86A5E;font-size:12px;margin-top:6px;display:none"></div>
+      <button id="auSubmit" style="width:100%;height:44px;border:0;border-radius:8px;background:var(--amber);color:#171408;font:600 13.5px var(--sans);cursor:pointer;margin-top:20px">Create account</button>
     </div>
   </div>
-</div>
-
-<div class="pop" id="profilePop" style="position:fixed;top:74px;right:26px;display:none;z-index:70;animation:pop .2s cubic-bezier(.2,.8,.2,1)">
-  <div class="pav" id="popAv">G</div>
-  <h4 id="popName">Guest Observer</h4>
-  <div class="hdl" id="popHdl">@guest-observer</div>
-  <div class="lvl">Undergraduate · Year 2 · UTC+1</div>
-  <div class="chips"><span class="chip">Quantum Mechanics</span><span class="chip">Astrophysics</span><span class="chip">Relativity</span></div>
-  <div class="badgerow">
-    <div>✨ First Derivation</div>
-    <div>🔥 Night Owl</div>
-    <div>✓ Peer Verified</div>
-  </div>
-  <div class="stat">12 resources saved · 3 uploaded · 1 peer-verified</div>
-  <button class="btn-mini" style="width:100%;justify-content:center;margin-top:12px">Edit profile</button>
 </div>
 
 <div class="toasts" id="toasts"></div>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase-auth.js"></script>
-<script src="./auth-integration.js"></script>
 <script>
+/* =====================================================================
+   BRAINSTEIN — single-file prototype
+   ===================================================================== */
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
+const icons = () => window.lucide && lucide.createIcons();
 
 const state = {
-  user: { name: 'Guest Observer', handle: 'guest-observer', signed: false },
+  user: { name:'Guest Observer', handle:'guest-observer', signed:false },
   view: 'home'
 };
 
-function go(view) {
-  $$('.view').forEach(v => v.classList.remove('active'));
-  $(`#view-${view}`)?.classList.add('active');
-  $$('.tnav button').forEach(b => b.classList.toggle('on', b.dataset.view === view));
+function toast(msg, ic='check'){
+  const t=document.createElement('div'); t.className='toast';
+  t.innerHTML=`<i data-lucide="${ic}" class="ic"></i><span>${msg}</span>`;
+  $('#toasts').appendChild(t); icons();
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},3400);
+}
+
+function go(view){
   state.view = view;
+  $$('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+view));
+  $$('[data-view]').forEach(b=>b.classList.toggle('on', b.dataset.view===view));
 }
 
-$$('.tnav button').forEach(btn => btn.addEventListener('click', () => go(btn.dataset.view)));
+$$('[data-view]').forEach(b=>b.addEventListener('click', ()=>go(b.dataset.view)));
+$$('[data-go]').forEach(b=>b.addEventListener('click', e=>{e.preventDefault();go(b.dataset.go);}));
 
-$('#userChip')?.addEventListener('click', () => {
-  const pop = $('#profilePop');
-  pop.style.display = pop.style.display === 'none' ? 'block' : 'none';
-});
+// Auth UI
+$$('[data-auth]').forEach(b=>b.addEventListener('click', ()=>{
+  const mode = b.dataset.auth === 'login' ? 'login' : 'signup';
+  $$('.au-tabs button').forEach(btn=>btn.classList.toggle('on', btn.dataset.tab===mode));
+  $('#auSubmit').textContent = mode==='login' ? 'Log in' : 'Create account';
+  $('#ovAuth').classList.add('open');
+}));
 
-document.addEventListener('click', e => {
-  const pop = $('#profilePop');
-  if (pop && !pop.contains(e.target) && e.target.id !== 'userChip') {
-    pop.style.display = 'none';
-  }
-});
+$$('.au-tabs button').forEach(b=>b.addEventListener('click', ()=>{
+  $$('.au-tabs button').forEach(btn=>btn.classList.toggle('on', btn===b));
+  $('#auSubmit').textContent = b.dataset.tab==='login' ? 'Log in' : 'Create account';
+}));
 
-function toast(message, icon) {
-  const toasts = $('#toasts');
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = message;
-  toasts.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
+// Generate name from email
+function generateNameFromEmail(email) {
+  const localPart = email.split('@')[0];
+  const words = localPart.split(/[._\-]+/).filter(w => w.length > 0);
+  return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 }
 
-$('#ovAuth')?.addEventListener('click', e => {
-  if (e.target.id === 'ovAuth') {
-    $('#ovAuth').classList.remove('open');
-  }
+$('#auSubmit').addEventListener('click', ()=>{
+  const em = $('#auEmail').value.trim(), pw = $('#auPass').value;
+  const err = $('#auErr');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ err.textContent = 'That email doesn\'t parse — check it?'; err.style.display='block'; return; }
+  if (pw.length < 6){ err.textContent = 'Password needs at least 6 characters.'; err.style.display='block'; return; }
+  err.style.display='none';
+  const name = generateNameFromEmail(em);
+  const handle = em.split('@')[0].replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+  state.user = {name, handle, signed:true};
+  $$('[data-auth]').forEach(b=>b.style.display='none');
+  $('#userChip').classList.add('on');
+  $('#chipName').textContent = name.split(' ')[0];
+  $('#chipAv').textContent = name[0].toUpperCase();
+  $('#ovAuth').classList.remove('open');
+  toast(`Welcome, ${name} — session active`, 'check');
 });
 
-if (window.lucide) window.lucide.createIcons();
+icons();
 </script>
 </body>
 </html>
