@@ -96,12 +96,40 @@ h1.display em{font-style:italic;color:var(--amber-txt);display:inline-block;anim
 #tickBody .tick-who{color:var(--tx);font-weight:600}
 #tickBody .tick-ch{font:400 11.5px var(--mono);color:var(--amber-txt);margin:0 8px}
 
+/* ---------- Overlays ---------- */
+.overlay{position:fixed;inset:0;background:rgba(3,4,7,.68);backdrop-filter:blur(6px);z-index:80;display:none;align-items:center;justify-content:center;padding:22px;animation:fade .2s}
+.overlay.open{display:flex}
+html.light .overlay{background:rgba(30,28,20,.35)}
+.panel{background:var(--bg2);border:1px solid var(--line2);border-radius:14px;width:min(1160px,97vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+.panel.small{width:min(430px,96vw)}
+.pbody{padding:26px 28px 30px;overflow-y:auto}
+.au-tabs{display:flex;gap:4px;border:1px solid var(--line2);border-radius:9px;padding:4px;margin-bottom:22px}
+.au-tabs button{flex:1;background:none;border:0;padding:9px;border-radius:6px;font:600 12.5px var(--sans);color:var(--tx3);cursor:pointer}
+.au-tabs button.on{background:var(--bg3);color:var(--tx)}
+.field{margin-bottom:15px}
+.field label{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:7px}
+.field input,.field select{width:100%;height:44px;border:1px solid var(--line2);border-radius:8px;background:var(--bg);color:var(--tx);padding:0 12px;font:400 14px var(--sans);outline:0;transition:.15s}
+.field input:focus,.field select:focus{border-color:var(--amber-txt)}
+.ferr{color:#E86A5E;font-size:12px;margin-top:6px;display:none}
+.divider{display:flex;align-items:center;gap:12px;color:var(--tx3);font:400 11px var(--mono);margin:18px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line)}
+.oauthbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--line2);background:none;color:var(--tx);border-radius:8px;padding:11px;font:500 13px var(--sans);cursor:pointer;transition:.15s}
+.oauthbtn:hover{border-color:var(--tx3)}
+.proto-note{font:400 11px var(--mono);color:var(--tx3);margin-top:16px;line-height:1.5}
+
 .toasts{position:fixed;right:22px;bottom:22px;z-index:200;display:flex;flex-direction:column;gap:10px}
 .toast{display:flex;gap:11px;align-items:center;background:var(--bg3);border:1px solid var(--line2);border-left:2px solid var(--amber);padding:13px 17px;border-radius:10px;font-size:13.5px;color:var(--tx);animation:fadeUp .3s ease}
+.toast .ic{color:var(--amber-txt)}
 .toast.out{opacity:0;transform:translateY(8px);transition:.3s}
 
 footer{border-top:1px solid var(--line)}
 footer .fin{max-width:1240px;margin:0 auto;padding:22px 32px;font:400 11px var(--mono);letter-spacing:.1em;color:var(--tx3);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+/* ---------- Responsive ---------- */
+@media (max-width:760px){
+  .shell{padding:36px 20px 90px}
+  .topbar{gap:12px;padding:0 16px}
+}
 </style>
 </head>
 <body>
@@ -140,8 +168,8 @@ footer .fin{max-width:1240px;margin:0 auto;padding:22px 32px;font:400 11px var(-
     <h1 class="display">Where curiosity <em>collapses</em> into understanding.</h1>
     <p class="hero-sub">Brainstein is the interactive commons for physics students — a curated library, live study rooms with native LaTeX, and an AI tutor that answers with full derivations, faster than you can think.</p>
     <div class="cta-row">
-      <button class="btn btn-solid" data-go="library"><i data-lucide="book-open" class="ic"></i>Explore the library</button>
-      <button class="btn btn-ghost" data-go="chat"><i data-lucide="messages-square" class="ic"></i>Join the commons</button>
+      <button class="btn btn-solid" data-view="library"><i data-lucide="book-open" class="ic"></i>Explore the library</button>
+      <button class="btn btn-ghost" data-view="chat"><i data-lucide="messages-square" class="ic"></i>Join the commons</button>
     </div>
   </div>
   <div class="ticker">
@@ -155,53 +183,56 @@ footer .fin{max-width:1240px;margin:0 auto;padding:22px 32px;font:400 11px var(-
 <!-- ============ DASHBOARD ============ -->
 <section class="view" id="view-dashboard">
   <div class="shell">
-    <h2>Dashboard</h2>
-    <p>Your personalized workspace.</p>
+    <h2 style="font:600 clamp(26px,3vw,36px)/1.15 var(--serif);margin-bottom:12px">Your Workspace</h2>
+    <p style="color:var(--tx3);font-size:14px">Dashboard coming soon.</p>
   </div>
 </section>
 
 <!-- ============ LIBRARY ============ -->
 <section class="view" id="view-library">
   <div class="shell">
-    <h2>Library</h2>
-    <p>Explore resources and derivations.</p>
+    <h2 style="font:600 clamp(26px,3vw,36px)/1.15 var(--serif);margin-bottom:12px">Library</h2>
+    <p style="color:var(--tx3);font-size:14px">Explore resources and derivations.</p>
   </div>
 </section>
 
 <!-- ============ CHAT ============ -->
 <section class="view" id="view-chat">
   <div class="shell">
-    <h2>Commons</h2>
-    <p>Connect with other students in real time.</p>
+    <h2 style="font:600 clamp(26px,3vw,36px)/1.15 var(--serif);margin-bottom:12px">Commons</h2>
+    <p style="color:var(--tx3);font-size:14px">Connect with other students.</p>
   </div>
 </section>
 
 <!-- ============ AI TUTOR ============ -->
 <section class="view" id="view-tutor">
   <div class="shell">
-    <h2>AI Tutor</h2>
-    <p>Ask anything and get full derivations.</p>
+    <h2 style="font:600 clamp(26px,3vw,36px)/1.15 var(--serif);margin-bottom:12px">AI Tutor</h2>
+    <p style="color:var(--tx3);font-size:14px">Ask anything and get full derivations.</p>
   </div>
 </section>
 
 <!-- ============ AUTH OVERLAY ============ -->
 <div class="overlay" id="ovAuth">
-  <div class="panel small" style="width:min(430px,96vw)">
-    <div style="padding:26px 28px 30px;overflow-y:auto">
+  <div class="panel small">
+    <div class="pbody">
       <div class="au-tabs">
-        <button data-tab="login" style="flex:1;background:none;border:0;padding:9px;border-radius:6px;font:600 12.5px var(--sans);color:var(--tx3);cursor:pointer">Log in</button>
-        <button data-tab="signup" class="on" style="flex:1;background:var(--bg3);border:0;padding:9px;border-radius:6px;font:600 12.5px var(--sans);color:var(--tx);cursor:pointer">Sign up</button>
+        <button data-tab="login">Log in</button>
+        <button data-tab="signup" class="on">Sign up</button>
       </div>
       <div class="field">
-        <label style="font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:7px">Email</label>
-        <input id="auEmail" type="email" style="width:100%;height:44px;border:1px solid var(--line2);border-radius:8px;background:var(--bg);color:var(--tx);padding:0 12px;font:400 14px var(--sans);outline:0" placeholder="you@example.com">
+        <label>Email</label>
+        <input id="auEmail" type="email" placeholder="you@example.com">
       </div>
       <div class="field">
-        <label style="font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:7px">Password</label>
-        <input id="auPass" type="password" style="width:100%;height:44px;border:1px solid var(--line2);border-radius:8px;background:var(--bg);color:var(--tx);padding:0 12px;font:400 14px var(--sans);outline:0" placeholder="••••••••">
+        <label>Password</label>
+        <input id="auPass" type="password" placeholder="••••••••">
       </div>
-      <div id="auErr" style="color:#E86A5E;font-size:12px;margin-top:6px;display:none"></div>
-      <button id="auSubmit" style="width:100%;height:44px;border:0;border-radius:8px;background:var(--amber);color:#171408;font:600 13.5px var(--sans);cursor:pointer;margin-top:20px">Create account</button>
+      <div id="auErr" class="ferr"></div>
+      <button id="auSubmit" class="btn btn-solid" style="width:100%;justify-content:center;padding:11px 14px;font-size:12.5px;margin-top:20px">Create account</button>
+      <div class="divider">or continue with</div>
+      <button class="oauthbtn" data-oauth="Google"><i data-lucide="chrome" class="ic"></i>Continue with Google</button>
+      <div class="proto-note">This is a prototype. Your data is not persistent.</div>
     </div>
   </div>
 </div>
@@ -213,16 +244,17 @@ footer .fin{max-width:1240px;margin:0 auto;padding:22px 32px;font:400 11px var(-
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
 /* =====================================================================
-   BRAINSTEIN — single-file prototype
+   BRAINSTEIN — interactive physics commons
    ===================================================================== */
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const icons = () => window.lucide && lucide.createIcons();
 
-const state = {
+const state = window.state || {
   user: { name:'Guest Observer', handle:'guest-observer', signed:false },
   view: 'home'
 };
+window.state = state;
 
 function toast(msg, ic='check'){
   const t=document.createElement('div'); t.className='toast';
@@ -230,6 +262,7 @@ function toast(msg, ic='check'){
   $('#toasts').appendChild(t); icons();
   setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},3400);
 }
+window.toast = toast;
 
 function go(view){
   state.view = view;
@@ -252,30 +285,6 @@ $$('.au-tabs button').forEach(b=>b.addEventListener('click', ()=>{
   $$('.au-tabs button').forEach(btn=>btn.classList.toggle('on', btn===b));
   $('#auSubmit').textContent = b.dataset.tab==='login' ? 'Log in' : 'Create account';
 }));
-
-// Generate name from email
-function generateNameFromEmail(email) {
-  const localPart = email.split('@')[0];
-  const words = localPart.split(/[._\-]+/).filter(w => w.length > 0);
-  return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-}
-
-$('#auSubmit').addEventListener('click', ()=>{
-  const em = $('#auEmail').value.trim(), pw = $('#auPass').value;
-  const err = $('#auErr');
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ err.textContent = 'That email doesn\'t parse — check it?'; err.style.display='block'; return; }
-  if (pw.length < 6){ err.textContent = 'Password needs at least 6 characters.'; err.style.display='block'; return; }
-  err.style.display='none';
-  const name = generateNameFromEmail(em);
-  const handle = em.split('@')[0].replace(/[^a-z0-9-]/gi, '-').toLowerCase();
-  state.user = {name, handle, signed:true};
-  $$('[data-auth]').forEach(b=>b.style.display='none');
-  $('#userChip').classList.add('on');
-  $('#chipName').textContent = name.split(' ')[0];
-  $('#chipAv').textContent = name[0].toUpperCase();
-  $('#ovAuth').classList.remove('open');
-  toast(`Welcome, ${name} — session active`, 'check');
-});
 
 icons();
 </script>
