@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brainstein — Interactive Blueprint & Working Wireframe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08090D">
+<title>Brainstein — Physics Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -41,7 +42,7 @@ a{color:inherit;text-decoration:none}
 .btn-solid:hover{background:var(--amber2);transform:translateY(-1px)}
 .btn-ghost{border-color:var(--line2);color:var(--tx);background:transparent}
 .btn-ghost:hover{border-color:var(--amber-txt);color:var(--amber-txt)}
-.btn-mini{display:inline-flex;align-items:center;gap:6px;font:500 11.5px var(--mono);color:var(--tx3);background:none;border:1px solid var(--line2);border-radius:6px;padding:5px 9px;cursor:pointer}
+.btn-mini{display:inline-flex;align-items:center;gap:6px;font:500 11.5px var(--mono);color:var(--tx3);background:none;border:1px solid var(--line2);border-radius:6px;padding:5px 9px;cursor:pointer;transition:.15s}
 .btn-mini:hover{color:var(--amber-txt);border-color:var(--amber-txt)}
 .iconbtn{width:38px;height:38px;border-radius:8px;border:1px solid var(--line2);background:none;color:var(--tx2);display:grid;place-items:center;cursor:pointer;transition:.15s}
 .iconbtn:hover{color:var(--amber-txt);border-color:var(--amber-txt)}
@@ -51,7 +52,7 @@ a{color:inherit;text-decoration:none}
 .mono{font-family:var(--mono)}
 
 /* ---------- Topbar ---------- */
-.topbar{position:fixed;inset:0 0 auto;height:62px;display:flex;align-items:center;gap:26px;padding:0 26px;border-bottom:1px solid var(--line);background:var(--bg-trans);backdrop-filter:blur(12px);z-index:100}
+.topbar{position:fixed;inset:0 0 auto;height:62px;display:flex;align-items:center;gap:26px;padding:0 26px;border-bottom:1px solid var(--line);background:var(--bg-trans);backdrop-filter:blur(12px);z-index:70}
 .brand{display:flex;align-items:center;gap:10px;font:500 13px var(--mono);letter-spacing:.22em;color:var(--tx)}
 .tnav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
 .tnav::-webkit-scrollbar{display:none}
@@ -64,6 +65,7 @@ a{color:inherit;text-decoration:none}
 .userchip{display:none;align-items:center;gap:9px;background:none;border:1px solid var(--line2);border-radius:999px;padding:5px 13px 5px 6px;cursor:pointer;color:var(--tx);font:500 12.5px var(--sans)}
 .userchip.on{display:flex}
 .userchip:hover{border-color:var(--amber-txt)}
+.chip-av{width:28px;height:28px;border-radius:50%;background:var(--bg3);display:grid;place-items:center;font:600 11px var(--mono);color:var(--tx)}
 
 /* ---------- Views ---------- */
 main{padding-top:62px}
@@ -72,221 +74,534 @@ main{padding-top:62px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}}
 @keyframes fade{from{opacity:0}}
 @keyframes pop{from{opacity:0;transform:scale(.97) translateY(8px)}}
-.shell{max-width:1240px;margin:0 auto;padding:52px 32px 110px}
+.shell{max-width:1120px;margin:0 auto;padding:52px 32px 110px}
 
 /* ---------- Hero ---------- */
-#view-home{position:relative;min-height:100vh;display:flex;flex-direction:column;overflow:hidden}
-#cosmos{position:absolute;inset:0;pointer-events:none}
-.hero-inner{position:relative;z-index:2;max-width:1240px;width:100%;margin:0 auto;padding:0 32px;display:flex;flex-direction:column;flex:1}
-.hero-eyebrow{display:flex;align-items:center;gap:12px;font:500 11px var(--mono);letter-spacing:.16em;color:var(--tx2);margin-top:118px}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--teal);position:relative;flex:none}
-.pulse::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--teal);animation:ping 2.2s ease-out infinite}
+#view-home{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding-top:0}
+.hero-content{max-width:720px;z-index:2}
+.hero-eyebrow{display:flex;align-items:center;justify-content:center;gap:12px;font:500 11px var(--mono);letter-spacing:.16em;color:var(--tx2);margin-bottom:20px}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--teal);flex:none;animation:ping 2.2s ease-out infinite}
 @keyframes ping{0%{transform:scale(.4);opacity:.9}100%{transform:scale(1.5);opacity:0}}
-h1.display{font:600 clamp(46px,7vw,92px)/1.03 var(--serif);letter-spacing:-.02em;margin:26px 0 24px;max-width:14ch}
-h1.display em{font-style:italic;color:var(--amber-txt);display:inline-block;animation:collapse 1s cubic-bezier(.2,.8,.2,1) both .15s}
-@keyframes collapse{from{letter-spacing:.3em;opacity:0;filter:blur(7px)}to{letter-spacing:-.01em;opacity:1;filter:blur(0)}}
-.hero-sub{max-width:56ch;color:var(--tx2);font-size:17px}
-.cta-row{display:flex;gap:14px;margin-top:38px;flex-wrap:wrap;align-items:center}
-.quiet-link{background:none;border:0;color:var(--tx3);font:500 13px var(--sans);cursor:pointer;display:inline-flex;gap:7px;align-items:center;padding:12px 6px}
-.quiet-link:hover{color:var(--amber-txt)}
-.ticker{position:relative;z-index:2;border-top:1px solid var(--line);margin-top:auto}
-.tick-in{max-width:1240px;margin:0 auto;padding:17px 32px;display:flex;align-items:baseline;gap:20px;min-height:60px}
-.tick-label{font:500 10.5px var(--mono);letter-spacing:.16em;color:var(--tx3);display:flex;align-items:center;gap:8px;white-space:nowrap}
-#tickBody{font-size:14.5px;color:var(--tx2);transition:opacity .45s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-#tickBody .tick-who{color:var(--tx);font-weight:600}
-#tickBody .tick-ch{font:400 11.5px var(--mono);color:var(--amber-txt);margin:0 8px}
+h1.display{font:600 clamp(46px,7vw,92px)/1.1 var(--serif);letter-spacing:-.02em;margin:0 0 20px;color:var(--tx)}
+h1.display em{font-style:italic;color:var(--amber-txt)}
+.hero-sub{max-width:56ch;color:var(--tx2);font-size:16px;margin-bottom:40px}
+.cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* ---------- Dashboard ---------- */
+.dash-grid{display:grid;grid-template-columns:198px minmax(0,1fr) 318px;gap:34px;align-items:start}
+.rail{position:sticky;top:86px;display:flex;flex-direction:column;gap:3px}
+.railbtn{display:flex;gap:11px;align-items:center;padding:10px 12px;background:none;border:0;border-radius:8px;color:var(--tx2);font:500 13px var(--sans);cursor:pointer;text-align:left;transition:.15s}
+.railbtn:hover{background:var(--bg2);color:var(--tx)}
+.railbtn.on{background:var(--bg3);color:var(--tx);box-shadow:inset 2px 0 0 var(--amber)}
+.greet{font:600 clamp(26px,3vw,36px)/1.15 var(--serif);letter-spacing:-.01em}
+.sub2{color:var(--tx3);font-size:14px;margin-top:6px}
+.dash-sec{margin-top:38px}
+.dash-sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.dash-sec-h h3{font:600 17px var(--serif)}
+.aipanel{border:1px solid var(--line2);border-radius:13px;background:var(--bg2);display:flex;flex-direction:column;overflow:hidden}
+.aihead{display:flex;align-items:center;gap:11px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.aihead b{font-size:13.5px;display:flex;gap:8px;align-items:center}
+.ondot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+.aistream{height:352px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:18px}
+.composer{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding:14px}
+.crow{display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:10px 12px;color:var(--tx);font-family:var(--sans);font-size:13px;resize:none}
+textarea::placeholder{color:var(--tx3)}
+.send{background:var(--amber);border:0;width:36px;height:36px;border-radius:8px;cursor:pointer;display:grid;place-items:center;color:#171408;font-weight:600;transition:.15s}
+.send:hover{background:var(--amber2)}
 
 /* ---------- Overlays ---------- */
 .overlay{position:fixed;inset:0;background:rgba(3,4,7,.68);backdrop-filter:blur(6px);z-index:80;display:none;align-items:center;justify-content:center;padding:22px;animation:fade .2s}
 .overlay.open{display:flex}
-html.light .overlay{background:rgba(30,28,20,.35)}
-.panel{background:var(--bg2);border:1px solid var(--line2);border-radius:14px;width:min(1160px,97vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
-.panel.small{width:min(430px,96vw)}
-.pbody{padding:26px 28px 30px;overflow-y:auto}
-.au-tabs{display:flex;gap:4px;border:1px solid var(--line2);border-radius:9px;padding:4px;margin-bottom:22px}
-.au-tabs button{flex:1;background:none;border:0;padding:9px;border-radius:6px;font:600 12.5px var(--sans);color:var(--tx3);cursor:pointer}
-.au-tabs button.on{background:var(--bg3);color:var(--tx)}
-.field{margin-bottom:15px}
-.field label{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:7px}
-.field input,.field select{width:100%;height:44px;border:1px solid var(--line2);border-radius:8px;background:var(--bg);color:var(--tx);padding:0 12px;font:400 14px var(--sans);outline:0;transition:.15s}
-.field input:focus,.field select:focus{border-color:var(--amber-txt)}
-.ferr{color:#E86A5E;font-size:12px;margin-top:6px;display:none}
-.divider{display:flex;align-items:center;gap:12px;color:var(--tx3);font:400 11px var(--mono);margin:18px 0}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line)}
-.oauthbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--line2);background:none;color:var(--tx);border-radius:8px;padding:11px;font:500 13px var(--sans);cursor:pointer;transition:.15s}
-.oauthbtn:hover{border-color:var(--tx3)}
-.proto-note{font:400 11px var(--mono);color:var(--tx3);margin-top:16px;line-height:1.5}
+.panel{background:var(--bg2);border:1px solid var(--line2);border-radius:14px;width:min(540px,97vw);padding:32px;animation:pop .3s cubic-bezier(.2,.8,.2,1)}
+.phead{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.phead .pt{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--tx3)}
+.phead .close{background:none;border:0;color:var(--tx3);cursor:pointer;font-size:20px;width:32px;height:32px;display:grid;place-items:center}
+.phead .close:hover{color:var(--tx)}
 
-.toasts{position:fixed;right:22px;bottom:22px;z-index:200;display:flex;flex-direction:column;gap:10px}
-.toast{display:flex;gap:11px;align-items:center;background:var(--bg3);border:1px solid var(--line2);border-left:2px solid var(--amber);padding:13px 17px;border-radius:10px;font-size:13.5px;color:var(--tx);animation:fadeUp .3s ease}
-.toast .ic{color:var(--amber-txt)}
-.toast.out{opacity:0;transform:translateY(8px);transition:.3s}
+/* ---------- Auth Panel ---------- */
+.au-tabs{display:flex;gap:12px;margin-bottom:24px;border-bottom:1px solid var(--line)}
+.au-tabs button{background:none;border:0;color:var(--tx3);font:500 13px var(--sans);padding:12px 0;cursor:pointer;transition:.15s;position:relative}
+.au-tabs button.on{color:var(--tx)}
+.au-tabs button.on::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--amber)}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.form-group label{font:500 12px var(--sans);color:var(--tx2)}
+.form-group input{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:10px 12px;color:var(--tx);font:400 14px var(--sans)}
+.form-group input::placeholder{color:var(--tx3)}
+.form-group input:focus{outline:0;border-color:var(--amber-txt)}
+.form-err{color:#ff6b6b;font:500 12px var(--sans);display:none;margin-bottom:12px}
+.auth-submit{width:100%;background:var(--amber);border:0;color:#171408;font:600 14px var(--sans);padding:12px;border-radius:8px;cursor:pointer;transition:.15s;margin-top:12px}
+.auth-submit:hover{background:var(--amber2)}
+.auth-submit:disabled{opacity:.6;cursor:not-allowed}
+.oauthbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px;background:var(--bg);border:1px solid var(--line2);border-radius:8px;color:var(--tx);font:500 13px var(--sans);cursor:pointer;margin-top:8px;transition:.15s}
+.oauthbtn:hover{border-color:var(--amber-txt);color:var(--amber-txt)}
 
-footer{border-top:1px solid var(--line)}
-footer .fin{max-width:1240px;margin:0 auto;padding:22px 32px;font:400 11px var(--mono);letter-spacing:.1em;color:var(--tx3);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+/* ---------- Profile Popover ---------- */
+.pop{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:20px;width:300px;box-shadow:0 20px 60px rgba(0,0,0,.5);display:none;flex-direction:column;gap:12px;z-index:90;animation:pop .3s cubic-bezier(.2,.8,.2,1)}
+.pop.open{display:flex}
+.pav{width:48px;height:48px;border-radius:50%;background:var(--bg3);display:grid;place-items:center;font:600 16px var(--mono);color:var(--tx);margin-bottom:8px}
+.pop h4{font:600 16px var(--serif);color:var(--tx)}
+.pop .hdl{color:var(--tx3);font:500 12px var(--mono)}
+.pop .lvl{color:var(--tx3);font-size:12px;margin-top:6px}
+.pop .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.pop .chip{font:500 11px var(--mono);background:var(--amber-soft);color:var(--amber-txt);padding:4px 10px;border-radius:999px;font-size:11px}
+.pop .stat{color:var(--tx3);font:400 12px var(--mono);margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}
+.pop .btn{width:100%;justify-content:center}
+
+/* ---------- Toasts ---------- */
+.toasts{position:fixed;bottom:20px;left:20px;display:flex;flex-direction:column;gap:10px;z-index:100;pointer-events:none}
+.toast{background:var(--bg2);border:1px solid var(--line2);border-radius:8px;padding:12px 16px;color:var(--tx);font:500 13px var(--sans);display:flex;align-items:center;gap:10px;animation:slideIn .3s ease;pointer-events:auto}
+@keyframes slideIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
 
 /* ---------- Responsive ---------- */
-@media (max-width:760px){
-  .shell{padding:36px 20px 90px}
-  .topbar{gap:12px;padding:0 16px}
+@media(max-width:1024px){
+  .dash-grid{grid-template-columns:1fr}
+  .rail{position:relative;top:0;flex-direction:row;flex-wrap:wrap}
+}
+@media(max-width:640px){
+  .shell{padding:40px 20px 80px}
+  .topbar{padding:0 16px;gap:16px;height:56px}
+  .tnav{gap:2px}
+  .tnav button{padding:6px 9px;font-size:10px}
 }
 </style>
 </head>
 <body>
 
-<!-- ============ TOPBAR ============ -->
-<header class="topbar">
-  <a class="brand" href="#" data-go="home">
-    <svg width="24" height="24" viewBox="0 0 26 26" aria-hidden="true">
-      <circle cx="6" cy="19" r="2.3" fill="var(--amber)"/>
-      <circle cx="13" cy="6" r="1.8" fill="var(--tx)"/>
-      <circle cx="21" cy="14" r="1.5" fill="var(--tx3)"/>
-      <path d="M7.5 17.5 12.3 8M14.3 7.6 19.6 12.9M8.3 18.6 19 14.6" stroke="var(--tx3)" stroke-width="1"/>
-    </svg>
-    BRAINSTEIN
-  </a>
-  <nav class="tnav" id="tnav">
-    <button data-view="home" class="on">HOME</button>
-    <button data-view="dashboard">DASHBOARD</button>
-    <button data-view="library">LIBRARY</button>
-    <button data-view="chat">COMMONS</button>
-    <button data-view="tutor">AI TUTOR</button>
-  </nav>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">⚛ BRAINSTEIN</div>
+  <div class="tnav" id="navTabs">
+    <button data-view="home" class="on">Home</button>
+    <button data-view="dashboard">Dashboard</button>
+    <button data-view="library">Library</button>
+  </div>
   <div class="tb-right">
-    <button class="linkbtn" data-auth="login">Log in</button>
-    <button class="btn btn-solid" data-auth="signup" style="padding:10px 16px">Sign up</button>
-    <button class="userchip" id="userChip"><span style="width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--amber-soft);font-size:11px;font-weight:600;color:var(--amber-txt)" id="chipAv">G</span><span id="chipName">Guest</span></button>
+    <button class="linkbtn" data-auth="login" id="loginBtn">Sign In</button>
+    <button class="linkbtn" data-auth="signup" id="signupBtn">Sign Up</button>
+    <button class="userchip" id="userChip">
+      <div class="chip-av" id="chipAv">G</div>
+      <span id="chipName">Guest</span>
+    </button>
   </div>
-</header>
+</div>
 
+<!-- MAIN CONTENT -->
 <main>
-<!-- ============ HERO ============ -->
-<section class="view active" id="view-home">
-  <canvas id="cosmos"></canvas>
-  <div class="hero-inner">
-    <div class="hero-eyebrow"><span class="pulse"></span>AI TUTOR ONLINE · 38 STUDY ROOMS ACTIVE · 12,408 RESOURCES INDEXED</div>
-    <h1 class="display">Where curiosity <em>collapses</em> into understanding.</h1>
-    <p class="hero-sub">Brainstein is the interactive commons for physics students — a curated library, live study rooms with native LaTeX, and an AI tutor that answers with full derivations, faster than you can think.</p>
-    <div class="cta-row">
-      <button class="btn btn-solid" data-view="library"><i data-lucide="book-open" class="ic"></i>Explore the library</button>
-      <button class="btn btn-ghost" data-view="chat"><i data-lucide="messages-square" class="ic"></i>Join the commons</button>
+  <!-- HOME VIEW -->
+  <section class="view active" id="view-home">
+    <div class="shell">
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <span class="pulse"></span>
+          <span>Physics done right</span>
+        </div>
+        <h1 class="display">Brainstein <em>AI</em></h1>
+        <p class="hero-sub">Your derivation partner — symbolic first, numbers last, limits checked. LaTeX is native everywhere.</p>
+        <div class="cta-row">
+          <button class="btn btn-solid" data-auth="login">Get Started</button>
+          <button class="btn btn-ghost" id="learnBtn">Learn More</button>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="ticker">
-    <div class="tick-in">
-      <span class="tick-label"><span class="pulse"></span>LIVE FROM THE COMMONS</span>
-      <div id="tickBody">Loading activity…</div>
+  </section>
+
+  <!-- DASHBOARD VIEW -->
+  <section class="view" id="view-dashboard">
+    <div class="shell">
+      <div class="dash-grid">
+        <!-- SIDEBAR -->
+        <div class="rail" id="railNav">
+          <button class="railbtn on" data-section="overview">Overview</button>
+          <button class="railbtn" data-section="chat">Chat</button>
+          <button class="railbtn" data-section="saved">Saved</button>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div>
+          <h2 class="greet" id="greetName">Welcome back</h2>
+          <p class="sub2" id="greetSub">Let's continue learning physics</p>
+
+          <!-- AI TUTOR SECTION -->
+          <div class="dash-sec">
+            <div class="aipanel">
+              <div class="aihead">
+                <div>
+                  <b>Brainstein AI <span class="ondot"></span></b>
+                  <small>Your derivation partner</small>
+                </div>
+              </div>
+              <div class="aistream" id="tutorStream"></div>
+              <div class="composer">
+                <div>
+                  <textarea id="tutorTa" rows="3" placeholder="Ask anything — e.g. derive the Euler–Lagrange equation"></textarea>
+                </div>
+                <div class="crow">
+                  <button class="send" id="tutorSend" title="Send"><span>→</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div>
+          <div class="aipanel">
+            <div class="aihead">
+              <b>Recent Activity</b>
+            </div>
+            <div style="padding:16px;color:var(--tx3);font-size:13px">
+              No recent activity yet. Start by asking a question!
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- ============ DASHBOARD ============ -->
-<section class="view" id="view-dashboard">
-  <div class="shell">
-    <h2 style="font:600 clamp(26px,3vw,36px)/1.15 var(--serif);margin-bottom:12px">Your Workspace</h2>
-    <p style="color:var(--tx3);font-size:14px">Dashboard coming soon.</p>
-  </div>
-</section>
+  <!-- LIBRARY VIEW -->
+  <section class="view" id="view-library">
+    <div class="shell">
+      <h2 style="font:600 32px var(--serif);margin-bottom:30px">Knowledge Base</h2>
+      <p style="color:var(--tx3);margin-bottom:40px">Browse derivations, formulas, and physics concepts.</p>
+      <div style="padding:40px;background:var(--bg2);border-radius:12px;text-align:center;color:var(--tx3)">
+        Library coming soon
+      </div>
+    </div>
+  </section>
+</main>
 
-<!-- ============ LIBRARY ============ -->
-<section class="view" id="view-library">
-  <div class="shell">
-    <h2 style="font:600 clamp(26px,3vw,36px)/1.15 var(--serif);margin-bottom:12px">Library</h2>
-    <p style="color:var(--tx3);font-size:14px">Explore resources and derivations.</p>
-  </div>
-</section>
+<!-- OVERLAYS -->
 
-<!-- ============ CHAT ============ -->
-<section class="view" id="view-chat">
-  <div class="shell">
-    <h2 style="font:600 clamp(26px,3vw,36px)/1.15 var(--serif);margin-bottom:12px">Commons</h2>
-    <p style="color:var(--tx3);font-size:14px">Connect with other students.</p>
-  </div>
-</section>
-
-<!-- ============ AI TUTOR ============ -->
-<section class="view" id="view-tutor">
-  <div class="shell">
-    <h2 style="font:600 clamp(26px,3vw,36px)/1.15 var(--serif);margin-bottom:12px">AI Tutor</h2>
-    <p style="color:var(--tx3);font-size:14px">Ask anything and get full derivations.</p>
-  </div>
-</section>
-
-<!-- ============ AUTH OVERLAY ============ -->
+<!-- AUTH OVERLAY -->
 <div class="overlay" id="ovAuth">
-  <div class="panel small">
-    <div class="pbody">
-      <div class="au-tabs">
-        <button data-tab="login">Log in</button>
-        <button data-tab="signup" class="on">Sign up</button>
-      </div>
-      <div class="field">
-        <label>Email</label>
-        <input id="auEmail" type="email" placeholder="you@example.com">
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input id="auPass" type="password" placeholder="••••••••">
-      </div>
-      <div id="auErr" class="ferr"></div>
-      <button id="auSubmit" class="btn btn-solid" style="width:100%;justify-content:center;padding:11px 14px;font-size:12.5px;margin-top:20px">Create account</button>
-      <div class="divider">or continue with</div>
-      <button class="oauthbtn" data-oauth="Google"><i data-lucide="chrome" class="ic"></i>Continue with Google</button>
-      <div class="proto-note">This is a prototype. Your data is not persistent.</div>
+  <div class="panel">
+    <div class="phead">
+      <span class="pt">Authentication</span>
+      <button class="close" id="closeAuth">&times;</button>
+    </div>
+
+    <div class="au-tabs">
+      <button class="au-tabs-btn on" data-tab="login">Sign In</button>
+      <button class="au-tabs-btn" data-tab="signup">Create Account</button>
+    </div>
+
+    <div id="auErr" class="form-err"></div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="auEmail" placeholder="you@example.com">
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="auPass" placeholder="••••••••">
+    </div>
+
+    <button class="auth-submit" id="auSubmit">Sign In</button>
+
+    <div style="text-align:center;margin-top:16px;color:var(--tx3);font-size:12px">
+      Demo mode: any email/password works
     </div>
   </div>
 </div>
 
-<div class="toasts" id="toasts"></div>
-</main>
+<!-- PROFILE POPOVER -->
+<div class="pop" id="profilePop">
+  <div class="pav" id="popAv">G</div>
+  <h4 id="popName">Guest Observer</h4>
+  <div class="hdl" id="popHdl">@guest-observer</div>
+  <div class="lvl">Undergraduate · Physics</div>
+  <div class="chips" style="margin:12px 0">
+    <span class="chip">Mechanics</span>
+    <span class="chip">Quantum</span>
+  </div>
+  <div class="stat">12 resources saved · 3 uploaded</div>
+  <button class="btn btn-ghost" id="signOutBtn" style="margin-top:12px;width:100%;justify-content:center">Sign Out</button>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<!-- TOASTS -->
+<div class="toasts" id="toasts"></div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
-/* =====================================================================
-   BRAINSTEIN — interactive physics commons
-   ===================================================================== */
+/* ============================================================
+   BRAINSTEIN APP INITIALIZATION
+   ============================================================ */
+
+// CONFIG
+window.BRAINSTEIN_CONFIG = {
+  supabaseUrl: 'https://vpsehljhihkwruqeanod.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwc2VobGpoaWhrd3J1cWVhbm9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5ODk4MDksImV4cCI6MjEwNDU2NTgwOX0.tqc8vTgAfuY2x0VvM63n58s1wD7f9sh7slTQ0H4w4-Q'
+};
+
+// GLOBAL STATE
+const state = {
+  user: {
+    name: 'Guest Observer',
+    handle: 'guest-observer',
+    signed: false,
+    email: '',
+    avatar: 'G'
+  },
+  view: 'home',
+  channel: 'homework',
+  theme: 'dark'
+};
+
+// UTILITIES
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const icons = () => window.lucide && lucide.createIcons();
 
-const state = window.state || {
-  user: { name:'Guest Observer', handle:'guest-observer', signed:false },
-  view: 'home'
-};
-window.state = state;
-
-function toast(msg, ic='check'){
-  const t=document.createElement('div'); t.className='toast';
-  t.innerHTML=`<i data-lucide="${ic}" class="ic"></i><span>${msg}</span>`;
-  $('#toasts').appendChild(t); icons();
-  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),350);},3400);
+function toast(message, icon = 'check') {
+  const toastEl = document.createElement('div');
+  toastEl.className = 'toast';
+  toastEl.innerHTML = `<span>${message}</span>`;
+  $('#toasts').appendChild(toastEl);
+  setTimeout(() => toastEl.remove(), 4000);
 }
-window.toast = toast;
 
-function go(view){
+function go(view) {
   state.view = view;
-  $$('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+view));
-  $$('[data-view]').forEach(b=>b.classList.toggle('on', b.dataset.view===view));
+  $$('.view').forEach(v => v.classList.remove('active'));
+  $(`#view-${view}`)?.classList.add('active');
+  $$('#navTabs button').forEach(b => b.classList.toggle('on', b.dataset.view === view));
 }
 
-$$('[data-view]').forEach(b=>b.addEventListener('click', ()=>go(b.dataset.view)));
-$$('[data-go]').forEach(b=>b.addEventListener('click', e=>{e.preventDefault();go(b.dataset.go);}));
+// AUTH MANAGER
+const AuthManager = (() => {
+  const config = window.BRAINSTEIN_CONFIG;
+  const supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
+    auth: { persistSession: true, autoRefreshToken: true }
+  });
 
-// Auth UI
-$$('[data-auth]').forEach(b=>b.addEventListener('click', ()=>{
-  const mode = b.dataset.auth === 'login' ? 'login' : 'signup';
-  $$('.au-tabs button').forEach(btn=>btn.classList.toggle('on', btn.dataset.tab===mode));
-  $('#auSubmit').textContent = mode==='login' ? 'Log in' : 'Create account';
-  $('#ovAuth').classList.add('open');
-}));
+  function normalizeUser(sessionUser) {
+    if (!sessionUser) {
+      return {
+        name: 'Guest Observer',
+        handle: 'guest-observer',
+        signed: false,
+        email: '',
+        avatar: 'G'
+      };
+    }
+    const email = sessionUser.email || '';
+    const handle = email.split('@')[0];
+    const name = (sessionUser.user_metadata?.full_name || handle).trim();
+    return {
+      name,
+      handle,
+      signed: true,
+      email,
+      avatar: name.charAt(0).toUpperCase()
+    };
+  }
 
-$$('.au-tabs button').forEach(b=>b.addEventListener('click', ()=>{
-  $$('.au-tabs button').forEach(btn=>btn.classList.toggle('on', btn===b));
-  $('#auSubmit').textContent = b.dataset.tab==='login' ? 'Log in' : 'Create account';
-}));
+  function updateUI() {
+    const user = state.user;
+    const signed = user.signed === true;
 
-icons();
+    // Buttons
+    $$('[data-auth="login"]').forEach(b => b.style.display = signed ? 'none' : 'block');
+    $$('[data-auth="signup"]').forEach(b => b.style.display = signed ? 'none' : 'block');
+    $('#userChip').classList.toggle('on', signed);
+
+    // User chip
+    $('#chipName').textContent = user.name.split(' ')[0];
+    $('#chipAv').textContent = user.avatar;
+
+    // Popover
+    $('#popName').textContent = user.name;
+    $('#popHdl').textContent = '@' + user.handle;
+    $('#popAv').textContent = user.avatar;
+
+    // Dashboard
+    if (signed) {
+      $('#greetName').textContent = `Welcome back, ${user.name.split(' ')[0]}`;
+    }
+  }
+
+  async function signIn(email, password) {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      const user = normalizeUser(data.user);
+      Object.assign(state.user, user);
+      updateUI();
+      return true;
+    } catch (err) {
+      toast(`Sign in failed: ${err.message}`, 'alert-circle');
+      return false;
+    }
+  }
+
+  async function signUp(email, password) {
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      if (data.user && !data.session) {
+        toast('Check your email to confirm account', 'mail');
+      } else {
+        const user = normalizeUser(data.user);
+        Object.assign(state.user, user);
+        updateUI();
+      }
+      return true;
+    } catch (err) {
+      toast(`Sign up failed: ${err.message}`, 'alert-circle');
+      return false;
+    }
+  }
+
+  async function signOut() {
+    try {
+      await supabase.auth.signOut();
+      Object.assign(state.user, normalizeUser(null));
+      updateUI();
+      go('home');
+      toast('Signed out', 'check');
+    } catch (err) {
+      toast(`Sign out failed: ${err.message}`, 'alert-circle');
+    }
+  }
+
+  async function hydrate() {
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        const user = normalizeUser(data.session.user);
+        Object.assign(state.user, user);
+      } else {
+        Object.assign(state.user, normalizeUser(null));
+      }
+      updateUI();
+    } catch (err) {
+      console.error('Hydration failed:', err);
+    }
+  }
+
+  return { signIn, signUp, signOut, hydrate, updateUI };
+})();
+
+// EVENT LISTENERS
+
+// Navigation
+$$('#navTabs button').forEach(btn => {
+  btn.addEventListener('click', () => go(btn.dataset.view));
+});
+
+// Auth buttons
+$$('[data-auth="login"], [data-auth="signup"]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.auth || 'login';
+    $$('.au-tabs-btn').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+    $('#auSubmit').textContent = tab === 'signup' ? 'Create Account' : 'Sign In';
+    $('#ovAuth').classList.add('open');
+  });
+});
+
+// Auth form
+$('#auSubmit').addEventListener('click', async () => {
+  const email = $('#auEmail').value.trim();
+  const password = $('#auPass').value.trim();
+  const err = $('#auErr');
+
+  if (!email || !email.includes('@')) {
+    err.textContent = 'Valid email required';
+    err.style.display = 'block';
+    return;
+  }
+  if (password.length < 6) {
+    err.textContent = 'Password must be 6+ characters';
+    err.style.display = 'block';
+    return;
+  }
+
+  err.style.display = 'none';
+  const tab = $$('.au-tabs-btn.on')[0]?.dataset.tab || 'login';
+  const success = tab === 'signup' ? await AuthManager.signUp(email, password) : await AuthManager.signIn(email, password);
+
+  if (success) {
+    $('#ovAuth').classList.remove('open');
+    $('#auEmail').value = '';
+    $('#auPass').value = '';
+  }
+});
+
+// Auth tabs
+$$('.au-tabs-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.au-tabs-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    $('#auSubmit').textContent = btn.dataset.tab === 'signup' ? 'Create Account' : 'Sign In';
+  });
+});
+
+// Auth close
+$('#closeAuth').addEventListener('click', () => $('#ovAuth').classList.remove('open'));
+$('#ovAuth').addEventListener('click', e => {
+  if (e.target === $('#ovAuth')) $('#ovAuth').classList.remove('open');
+});
+
+// User chip
+$('#userChip').addEventListener('click', e => {
+  e.stopPropagation();
+  $('#profilePop').classList.toggle('open');
+});
+
+// Sign out
+$('#signOutBtn').addEventListener('click', () => {
+  AuthManager.signOut();
+  $('#profilePop').classList.remove('open');
+});
+
+// Close pop on outside click
+document.addEventListener('click', e => {
+  if (!$('#profilePop').contains(e.target) && !$('#userChip').contains(e.target)) {
+    $('#profilePop').classList.remove('open');
+  }
+});
+
+// Dashboard
+$$('.railbtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.railbtn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+  });
+});
+
+// Composer (placeholder)
+$('#tutorSend').addEventListener('click', () => {
+  const text = $('#tutorTa').value.trim();
+  if (text) {
+    toast(`Message sent: "${text}"`, 'send');
+    $('#tutorTa').value = '';
+  }
+});
+
+// Learn more
+$('#learnBtn').addEventListener('click', () => go('library'));
+
+// INITIALIZATION
+document.addEventListener('DOMContentLoaded', async () => {
+  // Initialize icons
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+  // Hydrate auth state
+  await AuthManager.hydrate();
+});
+
+// Escape key closes overlays
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    $('#ovAuth').classList.remove('open');
+    $('#profilePop').classList.remove('open');
+  }
+});
 </script>
+
 </body>
 </html>
